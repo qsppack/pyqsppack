@@ -10,8 +10,8 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
 
-project = 'QSPy'
-copyright = '2024, James Larsen'
+project = 'qsp'
+copyright = '2025, James Larsen'
 author = 'James Larsen'
 
 version = '0.1.0'
