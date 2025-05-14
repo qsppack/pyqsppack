@@ -1,0 +1,877 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimization Module &mdash; qsp 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Welcome to qsp’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            qsp
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Optimization Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimization.QSP_solver">QSP Solver</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.QSP_solver.solve"><code class="docutils literal notranslate"><span class="pre">solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimization.core">Core Functionality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.core.F"><code class="docutils literal notranslate"><span class="pre">F()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.core.F_Jacobian"><code class="docutils literal notranslate"><span class="pre">F_Jacobian()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.core.get_entry"><code class="docutils literal notranslate"><span class="pre">get_entry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.core.get_unitary"><code class="docutils literal notranslate"><span class="pre">get_unitary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.core.reduced_to_full"><code class="docutils literal notranslate"><span class="pre">reduced_to_full()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimization.objective">Objective and Gradient Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.objective.grad_sym"><code class="docutils literal notranslate"><span class="pre">grad_sym()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.objective.grad_sym_real"><code class="docutils literal notranslate"><span class="pre">grad_sym_real()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.objective.obj_sym"><code class="docutils literal notranslate"><span class="pre">obj_sym()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimization.optimizers">Optimization Methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.optimizers.coordinate_minimization"><code class="docutils literal notranslate"><span class="pre">coordinate_minimization()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.optimizers.lbfgs"><code class="docutils literal notranslate"><span class="pre">lbfgs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.optimizers.newton"><code class="docutils literal notranslate"><span class="pre">newton()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-optimization.utils">Utility Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.chebyshev_to_func"><code class="docutils literal notranslate"><span class="pre">chebyshev_to_func()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.cvx_poly_coef"><code class="docutils literal notranslate"><span class="pre">cvx_poly_coef()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.get_pim_deri_sym"><code class="docutils literal notranslate"><span class="pre">get_pim_deri_sym()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.get_pim_deri_sym_real"><code class="docutils literal notranslate"><span class="pre">get_pim_deri_sym_real()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.get_pim_sym"><code class="docutils literal notranslate"><span class="pre">get_pim_sym()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.get_pim_sym_real"><code class="docutils literal notranslate"><span class="pre">get_pim_sym_real()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optimization.utils.get_unitary_sym"><code class="docutils literal notranslate"><span class="pre">get_unitary_sym()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">qsp</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Optimization Module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/optimization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="optimization-module">
+<h1>Optimization Module<a class="headerlink" href="#optimization-module" title="Link to this heading"></a></h1>
+<p>The optimization module provides functionality for Quantum Signal Processing (QSP) optimization.</p>
+<section id="module-optimization.QSP_solver">
+<span id="qsp-solver"></span><h2>QSP Solver<a class="headerlink" href="#module-optimization.QSP_solver" title="Link to this heading"></a></h2>
+<p>Main solver interface for Quantum Signal Processing optimization.</p>
+<p>This module provides the main interface for solving QSP optimization problems,
+coordinating the various optimization methods and utility functions.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.QSP_solver.solve">
+<span class="sig-prename descclassname"><span class="pre">optimization.QSP_solver.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/QSP_solver.html#solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.QSP_solver.solve" title="Link to this definition"></a></dt>
+<dd><p>Given coefficients of a polynomial P, yield corresponding phase factors.</p>
+<p>The reference chose the first half of the phase factors as the
+optimization variables, while in the code we used the second half of the
+phase factors. These two formulations are equivalent.</p>
+<p>To simplify the representation, a constant pi/4 is added to both sides of
+the phase factors when evaluating the objective and the gradient. In the
+output, the FULL phase factors with pi/4 are given.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coef</strong> (<em>array_like</em>) – Coefficients of polynomial P under Chebyshev basis. P should be even/odd,
+only provide non-zero coefficients. Coefficients should be ranked from
+low order term to high order term.</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of polynomial P (0 – even, 1 – odd)</p></li>
+<li><p><strong>opts</strong> (<em>dict</em><em>, </em><em>optional</em>) – <p>Options dictionary with fields:</p>
+<ul>
+<li><dl class="simple">
+<dt>criteria<span class="classifier">float</span></dt><dd><p>Stop criteria</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>useReal<span class="classifier">bool</span></dt><dd><p>Use only real arithmetics if true</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>targetPre<span class="classifier">bool</span></dt><dd><p>Want Pre to be target function if true</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>method<span class="classifier">{‘LBFGS’, ‘FPI’, ‘Newton’}</span></dt><dd><p>Optimization method to use</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>typePhi<span class="classifier">{‘full’, ‘reduced’}</span></dt><dd><p>Type of phase factors to return</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>phi_proc</strong> (<em>ndarray</em>) – Solution of optimization problem, FULL phase factors</p></li>
+<li><p><strong>out</strong> (<em>dict</em>) – Information of solving process containing:</p>
+<ul>
+<li><dl class="simple">
+<dt>iter<span class="classifier">int</span></dt><dd><p>Number of iterations</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>time<span class="classifier">float</span></dt><dd><p>Runtime in seconds</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>value<span class="classifier">float</span></dt><dd><p>Final error value</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>parity<span class="classifier">int</span></dt><dd><p>Input parity value</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>targetPre<span class="classifier">bool</span></dt><dd><p>Whether Pre was target function</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>typePhi<span class="classifier">str</span></dt><dd><p>Type of phase factors returned</p>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-optimization.core">
+<span id="core-functionality"></span><h2>Core Functionality<a class="headerlink" href="#module-optimization.core" title="Link to this heading"></a></h2>
+<p>Core Quantum Signal Processing functionality.</p>
+<p>This module provides the fundamental operations needed for Quantum Signal Processing,
+including unitary matrix construction and manipulation of phase factors.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.core.F">
+<span class="sig-prename descclassname"><span class="pre">optimization.core.</span></span><span class="sig-name descname"><span class="pre">F</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/core.html#F"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.core.F" title="Link to this definition"></a></dt>
+<dd><p>Compute the Chebyshev coefficients of P_im.</p>
+<p>P_im is the imaginary part of the (1,1) element of the QSP unitary matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Reduced phase factors</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phi (0 for even, 1 for odd)</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Options dictionary with fields:</dt><dd><ul>
+<li><dl class="simple">
+<dt>useReal<span class="classifier">bool</span></dt><dd><p>Whether to use real matrix multiplication</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Chebyshev coefficients of P_im w.r.t.
+T_(2k) for even parity or T_(2k-1) for odd parity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.core.F_Jacobian">
+<span class="sig-prename descclassname"><span class="pre">optimization.core.</span></span><span class="sig-name descname"><span class="pre">F_Jacobian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/core.html#F_Jacobian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.core.F_Jacobian" title="Link to this definition"></a></dt>
+<dd><p>Compute the Jacobian matrix of Chebyshev coefficients.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Reduced phase factors</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phi (0 for even, 1 for odd)</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – <dl class="simple">
+<dt>Options dictionary with fields:</dt><dd><ul>
+<li><dl class="simple">
+<dt>useReal<span class="classifier">bool</span></dt><dd><p>Whether to use real matrix multiplication</p>
+</dd>
+</dl>
+</li>
+</ul>
+</dd>
+</dl>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Jacobian matrix of Chebyshev coefficients</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.core.get_entry">
+<span class="sig-prename descclassname"><span class="pre">optimization.core.</span></span><span class="sig-name descname"><span class="pre">get_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/core.html#get_entry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.core.get_entry" title="Link to this definition"></a></dt>
+<dd><p>Compute QSP unitary matrix entries for multiple points.</p>
+<p>This function evaluates the QSP unitary matrix at multiple points, handling
+both full and reduced phase factors. It can compute either the real or
+imaginary part of the (1,1) element based on the options.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xlist</strong> (<em>array_like</em>) – Points at which to evaluate the QSP unitary, must be in [-1, 1].</p></li>
+<li><p><strong>phase</strong> (<em>array_like</em>) – Phase factors for the QSP circuit. Can be either full or reduced
+phase factors depending on opts[‘typePhi’].</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – <p>Options dictionary containing:</p>
+<ul>
+<li><dl class="simple">
+<dt>targetPre<span class="classifier">bool</span></dt><dd><p>If True, compute real part (Pre), otherwise compute imaginary part (Pim)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>parity<span class="classifier">int</span></dt><dd><p>Parity of the polynomial (0 for even, 1 for odd)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>typePhi<span class="classifier">{‘full’, ‘reduced’}</span></dt><dd><p>Type of phase factors provided:</p>
+<ul>
+<li><p>’full’ : complete set of phase factors</p></li>
+<li><p>’reduced’ : reduced set of phase factors (will be expanded)</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>QSP approximation values at each point in xlist. For targetPre=True,
+returns real part of (1,1) element; for targetPre=False, returns
+imaginary part.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>When typePhi=’reduced’, the function expands the reduced phase factors to
+full phase factors using symmetry. For targetPre=False, it also adjusts
+the first and last phase factors by -π/4 to compute the imaginary part.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.core.get_unitary">
+<span class="sig-prename descclassname"><span class="pre">optimization.core.</span></span><span class="sig-name descname"><span class="pre">get_unitary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phase</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/core.html#get_unitary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.core.get_unitary" title="Link to this definition"></a></dt>
+<dd><p>Compute QSP unitary matrix for given phase factors.</p>
+<p>This function constructs the full QSP unitary matrix for a given set of phase
+factors at a specific point. The unitary is built by alternating W(x) gates
+and phase rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phase</strong> (<em>array_like</em>) – Phase factors for the QSP circuit. These are used to construct the
+phase rotation gates in the circuit.</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate the unitary, must be in [-1, 1].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Real part of the (1,1) element of the QSP unitary matrix, which
+represents the QSP approximation of the target function.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The unitary is constructed as:
+U = R(phi_0) * W(x) * R(phi_1) * W(x) * … * R(phi_n)
+where R(phi) is a phase rotation gate and W(x) is the signal processing gate.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.core.reduced_to_full">
+<span class="sig-prename descclassname"><span class="pre">optimization.core.</span></span><span class="sig-name descname"><span class="pre">reduced_to_full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi_cm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targetPre</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/core.html#reduced_to_full"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.core.reduced_to_full" title="Link to this definition"></a></dt>
+<dd><p>Convert reduced phase factors to full phase factors for QSP.</p>
+<p>This function constructs the full set of phase factors required for the
+Quantum Signal Processing (QSP) unitary matrix from a reduced set. The
+conversion uses symmetry properties of the phase factors and handles
+both even and odd parity cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi_cm</strong> (<em>array_like</em>) – Reduced phase factors. For even parity, these represent half the
+total phase factors; for odd parity, they represent the unique
+phase factors.</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – <p>Parity of the phase factors:</p>
+<ul>
+<li><p>0 : even parity (full length = 2*len(phi_cm) - 1)</p></li>
+<li><p>1 : odd parity (full length = 2*len(phi_cm))</p></li>
+</ul>
+</p></li>
+<li><p><strong>targetPre</strong> (<em>bool</em>) – <p>Whether to adjust for target preparation:</p>
+<ul>
+<li><p>True : add π/4 to the last phase factor</p></li>
+<li><p>False : use phase factors as is</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Full phase factors constructed by mirroring the reduced factors.
+The length depends on parity:</p>
+<ul class="simple">
+<li><p>For even parity: 2*len(phi_cm) - 1</p></li>
+<li><p>For odd parity: 2*len(phi_cm)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The full phase factors are constructed by:
+1. Copying the reduced factors to the right half
+2. Mirroring them to the left half
+3. Adjusting the last factor if targetPre is True</p>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-optimization.objective">
+<span id="objective-and-gradient-functions"></span><h2>Objective and Gradient Functions<a class="headerlink" href="#module-optimization.objective" title="Link to this heading"></a></h2>
+<p>Objective and gradient functions for QSP optimization.</p>
+<p>This module provides functions for computing objective values and gradients
+needed in QSP optimization problems.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.objective.grad_sym">
+<span class="sig-prename descclassname"><span class="pre">optimization.objective.</span></span><span class="sig-name descname"><span class="pre">grad_sym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/objective.html#grad_sym"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.objective.grad_sym" title="Link to this definition"></a></dt>
+<dd><p>Compute gradient of objective function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>delta</strong> (<em>array_like</em>) – Samples</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – Options dictionary containing target function and parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>grad</strong> (<em>ndarray</em>) – Gradient of objective function</p></li>
+<li><p><strong>obj</strong> (<em>ndarray</em>) – Objective function value</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.objective.grad_sym_real">
+<span class="sig-prename descclassname"><span class="pre">optimization.objective.</span></span><span class="sig-name descname"><span class="pre">grad_sym_real</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/objective.html#grad_sym_real"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.objective.grad_sym_real" title="Link to this definition"></a></dt>
+<dd><p>Compute gradient using real arithmetic.</p>
+<p>Similar to grad_sym but uses only real arithmetic for efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>delta</strong> (<em>array_like</em>) – Samples</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – Options dictionary containing target function and parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>grad</strong> (<em>ndarray</em>) – Gradient of objective function</p></li>
+<li><p><strong>obj</strong> (<em>ndarray</em>) – Objective function value</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.objective.obj_sym">
+<span class="sig-prename descclassname"><span class="pre">optimization.objective.</span></span><span class="sig-name descname"><span class="pre">obj_sym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/objective.html#obj_sym"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.objective.obj_sym" title="Link to this definition"></a></dt>
+<dd><p>Compute objective function value for QSP optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>delta</strong> (<em>array_like</em>) – Samples</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – Options dictionary containing target function and parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Objective function value</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-optimization.optimizers">
+<span id="optimization-methods"></span><h2>Optimization Methods<a class="headerlink" href="#module-optimization.optimizers" title="Link to this heading"></a></h2>
+<p>Optimization methods for Quantum Signal Processing.</p>
+<p>This module provides various optimization algorithms for finding phase factors
+in Quantum Signal Processing problems.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.optimizers.coordinate_minimization">
+<span class="sig-prename descclassname"><span class="pre">optimization.optimizers.</span></span><span class="sig-name descname"><span class="pre">coordinate_minimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/optimizers.html#coordinate_minimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.optimizers.coordinate_minimization" title="Link to this definition"></a></dt>
+<dd><p>Coordinate minimization optimization for QSP phase factors.</p>
+<p>This function implements the coordinate minimization algorithm for
+finding optimal phase factors in QSP problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coef</strong> (<em>array_like</em>) – Coefficients of polynomial P under Chebyshev basis</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of polynomial P (0 for even, 1 for odd)</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – Options dictionary containing optimization parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>phi</strong> (<em>ndarray</em>) – Optimized phase factors</p></li>
+<li><p><strong>err</strong> (<em>float</em>) – Final error value</p></li>
+<li><p><strong>iter</strong> (<em>int</em>) – Number of iterations performed</p></li>
+<li><p><strong>runtime</strong> (<em>float</em>) – Total runtime in seconds</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.optimizers.lbfgs">
+<span class="sig-prename descclassname"><span class="pre">optimization.optimizers.</span></span><span class="sig-name descname"><span class="pre">lbfgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grad</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/optimizers.html#lbfgs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.optimizers.lbfgs" title="Link to this definition"></a></dt>
+<dd><p>L-BFGS optimization for QSP phase factors.</p>
+<p>This function implements the Limited-memory BFGS optimization algorithm
+for finding optimal phase factors in QSP problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> (<em>callable</em>) – Objective function to minimize</p></li>
+<li><p><strong>grad</strong> (<em>callable</em>) – Gradient function of the objective</p></li>
+<li><p><strong>x0</strong> (<em>array_like</em>) – Initial points for evaluation</p></li>
+<li><p><strong>phi0</strong> (<em>array_like</em>) – Initial phase factors</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – <p>Options dictionary containing:</p>
+<ul>
+<li><dl class="simple">
+<dt>maxiter<span class="classifier">int</span></dt><dd><p>Maximum number of iterations</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>criteria<span class="classifier">float</span></dt><dd><p>Convergence criteria</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>gamma<span class="classifier">float</span></dt><dd><p>Line search retraction rate (default 0.5)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>accrate<span class="classifier">float</span></dt><dd><p>Line search accept ratio (default 1e-3)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>minstep<span class="classifier">float</span></dt><dd><p>Minimal step size (default 1e-5)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>lmem<span class="classifier">int</span></dt><dd><p>L-BFGS memory size (default 200)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>print<span class="classifier">bool</span></dt><dd><p>Whether to print progress (default True)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>itprint<span class="classifier">int</span></dt><dd><p>Print frequency (default 1)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>parity<span class="classifier">int</span></dt><dd><p>Parity of polynomial (0 for even, 1 for odd)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>phi</strong> (<em>ndarray</em>) – Optimized phase factors</p></li>
+<li><p><strong>obj_value</strong> (<em>float</em>) – Objective value at optimal point</p></li>
+<li><p><strong>iter</strong> (<em>int</em>) – Number of iterations performed</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.optimizers.newton">
+<span class="sig-prename descclassname"><span class="pre">optimization.optimizers.</span></span><span class="sig-name descname"><span class="pre">newton</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/optimizers.html#newton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.optimizers.newton" title="Link to this definition"></a></dt>
+<dd><p>Newton’s method optimization for QSP phase factors.</p>
+<p>This function implements Newton’s method for finding optimal phase
+factors in QSP problems.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coef</strong> (<em>array_like</em>) – Coefficients of polynomial P under Chebyshev basis</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of polynomial P (0 for even, 1 for odd)</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – Options dictionary containing optimization parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>phi</strong> (<em>ndarray</em>) – Optimized phase factors</p></li>
+<li><p><strong>err</strong> (<em>float</em>) – Final error value</p></li>
+<li><p><strong>iter</strong> (<em>int</em>) – Number of iterations performed</p></li>
+<li><p><strong>runtime</strong> (<em>float</em>) – Total runtime in seconds</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-optimization.utils">
+<span id="utility-functions"></span><h2>Utility Functions<a class="headerlink" href="#module-optimization.utils" title="Link to this heading"></a></h2>
+<p>Utility functions for QSP optimization.</p>
+<p>This module provides utility functions for working with Chebyshev polynomials
+and other mathematical operations needed in QSP optimization.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.chebyshev_to_func">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">chebyshev_to_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partialcoef</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#chebyshev_to_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.chebyshev_to_func" title="Link to this definition"></a></dt>
+<dd><p>Convert Chebyshev coefficients to function values.</p>
+<p>This function evaluates a polynomial represented in the Chebyshev basis
+at given points.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>array_like</em><em> or </em><em>float</em>) – Points at which to evaluate the polynomial. Can be a single point
+or an array of points.</p></li>
+<li><p><strong>coef</strong> (<em>array_like</em>) – Coefficients in Chebyshev basis, ordered from lowest to highest degree</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of the polynomial (0 for even, 1 for odd)</p></li>
+<li><p><strong>partialcoef</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to return only coefficients of odd/even order</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Function values at the given points. Returns a scalar if input is
+scalar, array otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.cvx_poly_coef">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">cvx_poly_coef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opts</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#cvx_poly_coef"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.cvx_poly_coef" title="Link to this definition"></a></dt>
+<dd><p>Compute coefficients for a polynomial approximation using convex optimization.</p>
+<p>This function computes the coefficients of a polynomial that best approximates
+a target function over specified intervals in a least-squares sense. The function
+is called with a target function, the degree of the polynomial, and an options
+dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> (<em>callable</em>) – The target function to approximate.</p></li>
+<li><p><strong>deg</strong> (<em>int</em>) – The degree of the polynomial.</p></li>
+<li><p><strong>opts</strong> (<em>dict</em>) – <p>Options dictionary with the following fields:</p>
+<ul>
+<li><dl class="simple">
+<dt>intervals<span class="classifier">list</span></dt><dd><p>[min, max] interval for x values.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>npts<span class="classifier">int</span></dt><dd><p>Number of points to evaluate the function at.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>objnorm<span class="classifier">float</span></dt><dd><p>Norm to use for optimization.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>epsil<span class="classifier">float</span></dt><dd><p>Epsilon for numerical stability.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>fscale<span class="classifier">float</span></dt><dd><p>Scale factor for function values.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>isplot<span class="classifier">bool</span></dt><dd><p>Whether to plot results.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Coefficients of the best-fit polynomial in the Chebyshev basis.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.get_pim_deri_sym">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">get_pim_deri_sym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#get_pim_deri_sym"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.get_pim_deri_sym" title="Link to this definition"></a></dt>
+<dd><p>Compute Pim and its derivatives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phase factors (0 for even, 1 for odd)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array containing Pim and its derivatives</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.get_pim_deri_sym_real">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">get_pim_deri_sym_real</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#get_pim_deri_sym_real"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.get_pim_deri_sym_real" title="Link to this definition"></a></dt>
+<dd><p>Compute Pim and its Jacobian matrix values at a single point x using the real matrix representation of Pim.</p>
+<p>P_im: the imaginary part of the (1,1) element of the QSP unitary matrix.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Theta MUST be a number.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phase factors (0 for even, 1 for odd)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array containing Pim and its derivatives</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.get_pim_sym">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">get_pim_sym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#get_pim_sym"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.get_pim_sym" title="Link to this definition"></a></dt>
+<dd><p>Compute imaginary part of QSP unitary matrix element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phase factors (0 for even, 1 for odd)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Imaginary part of (1,1) element of QSP unitary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.get_pim_sym_real">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">get_pim_sym_real</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#get_pim_sym_real"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.get_pim_sym_real" title="Link to this definition"></a></dt>
+<dd><p>Compute imaginary part using real arithmetic.</p>
+<p>Similar to get_pim_sym but uses only real arithmetic for efficiency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – Phase factors for QSP circuit</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – Parity of phase factors (0 for even, 1 for odd)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Imaginary part of (1,1) element of QSP unitary</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="optimization.utils.get_unitary_sym">
+<span class="sig-prename descclassname"><span class="pre">optimization.utils.</span></span><span class="sig-name descname"><span class="pre">get_unitary_sym</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">phi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/optimization/utils.html#get_unitary_sym"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#optimization.utils.get_unitary_sym" title="Link to this definition"></a></dt>
+<dd><p>Get the QSP unitary matrix based on given phase vector and point x.</p>
+<p>This function constructs the full QSP unitary matrix for a given set of
+phase factors at a specific point, handling both even and odd parity cases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>phi</strong> (<em>array_like</em>) – <p>Phase factors for the QSP circuit:</p>
+<ul>
+<li><p>For parity=1: reduced phase factors</p></li>
+<li><p>For parity=0: phi[0] differs from reduced phase factors by factor of 2</p></li>
+</ul>
+</p></li>
+<li><p><strong>x</strong> (<em>float</em>) – Point at which to evaluate the unitary, must be in [-1, 1].</p></li>
+<li><p><strong>parity</strong> (<em>int</em>) – <p>Parity of the phase factors:</p>
+<ul>
+<li><p>0 : even parity</p></li>
+<li><p>1 : odd parity</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The QSP unitary matrix constructed from the phase factors and point x.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The construction of the unitary matrix differs based on parity:</p>
+<ul class="simple">
+<li><p>For odd parity: Uses full phase factors with a final gate transformation</p></li>
+<li><p>For even parity: Uses a different construction with modified first phase</p></li>
+</ul>
+</div>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to qsp’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, James Larsen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>optimization.utils &mdash; qsp 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            qsp
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../optimization.html">Optimization Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">qsp</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">optimization.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for optimization.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Utility functions for QSP optimization.</span>
+
+<span class="sd">This module provides utility functions for working with Chebyshev polynomials</span>
+<span class="sd">and other mathematical operations needed in QSP optimization.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.special</span><span class="w"> </span><span class="kn">import</span> <span class="n">chebyt</span>
+
+<div class="viewcode-block" id="chebyshev_to_func">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.chebyshev_to_func">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">chebyshev_to_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">coef</span><span class="p">,</span> <span class="n">parity</span><span class="p">,</span> <span class="n">partialcoef</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert Chebyshev coefficients to function values.</span>
+
+<span class="sd">    This function evaluates a polynomial represented in the Chebyshev basis</span>
+<span class="sd">    at given points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : array_like or float</span>
+<span class="sd">        Points at which to evaluate the polynomial. Can be a single point</span>
+<span class="sd">        or an array of points.</span>
+<span class="sd">    coef : array_like</span>
+<span class="sd">        Coefficients in Chebyshev basis, ordered from lowest to highest degree</span>
+<span class="sd">    parity : int</span>
+<span class="sd">        Parity of the polynomial (0 for even, 1 for odd)</span>
+<span class="sd">    partialcoef : bool, optional</span>
+<span class="sd">        Whether to return only coefficients of odd/even order</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray or float</span>
+<span class="sd">        Function values at the given points. Returns a scalar if input is</span>
+<span class="sd">        scalar, array otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">partialcoef</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coef</span><span class="p">)):</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="n">coef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">k</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">coef</span><span class="p">)):</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="n">coef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">((</span><span class="mi">2</span> <span class="o">*</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">coef</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="n">coef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">coef</span><span class="p">),</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">ret</span> <span class="o">+=</span> <span class="n">coef</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">k</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span></div>
+
+
+<div class="viewcode-block" id="cvx_poly_coef">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.cvx_poly_coef">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cvx_poly_coef</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">deg</span><span class="p">,</span> <span class="n">opts</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute coefficients for a polynomial approximation using convex optimization.</span>
+
+<span class="sd">    This function computes the coefficients of a polynomial that best approximates</span>
+<span class="sd">    a target function over specified intervals in a least-squares sense. The function</span>
+<span class="sd">    is called with a target function, the degree of the polynomial, and an options</span>
+<span class="sd">    dictionary.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    func : callable</span>
+<span class="sd">        The target function to approximate.</span>
+<span class="sd">    deg : int</span>
+<span class="sd">        The degree of the polynomial.</span>
+<span class="sd">    opts : dict</span>
+<span class="sd">        Options dictionary with the following fields:</span>
+<span class="sd">        </span>
+<span class="sd">        - intervals : list</span>
+<span class="sd">            [min, max] interval for x values.</span>
+<span class="sd">        - npts : int</span>
+<span class="sd">            Number of points to evaluate the function at.</span>
+<span class="sd">        - objnorm : float</span>
+<span class="sd">            Norm to use for optimization.</span>
+<span class="sd">        - epsil : float</span>
+<span class="sd">            Epsilon for numerical stability.</span>
+<span class="sd">        - fscale : float</span>
+<span class="sd">            Scale factor for function values.</span>
+<span class="sd">        - isplot : bool</span>
+<span class="sd">            Whether to plot results.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Coefficients of the best-fit polynomial in the Chebyshev basis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Set default options if not provided</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;npts&#39;</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;epsil&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;fscale&#39;</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;epsil&#39;</span><span class="p">])</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;intervals&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;isplot&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;objnorm&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">,</span> <span class="s1">&#39;SLSQP&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Check variables and assign local variables</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">opts</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">])</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">parity</span> <span class="o">=</span> <span class="n">deg</span> <span class="o">%</span> <span class="mi">2</span>
+    <span class="n">epsil</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;epsil&#39;</span><span class="p">]</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;npts&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Generate Chebyshev points</span>
+    <span class="n">xpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">npts</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">npts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">xpts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">union1d</span><span class="p">(</span><span class="n">xpts</span><span class="p">,</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">])</span>
+    <span class="n">xpts</span> <span class="o">=</span> <span class="n">xpts</span><span class="p">[</span><span class="n">xpts</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">xpts</span><span class="p">)</span>
+
+    <span class="n">n_interval</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">opts</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">])</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">ind_union</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">ind_set</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_interval</span><span class="p">):</span>
+        <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">xpts</span> <span class="o">&gt;=</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">xpts</span> <span class="o">&lt;=</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;intervals&#39;</span><span class="p">][</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ind_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ind</span><span class="p">)</span>
+        <span class="n">ind_union</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">union1d</span><span class="p">(</span><span class="n">ind_union</span><span class="p">,</span> <span class="n">ind</span><span class="p">)</span>
+
+    <span class="c1"># Evaluate the target function</span>
+    <span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">npts</span><span class="p">)</span>
+    <span class="n">fx</span><span class="p">[</span><span class="n">ind_union</span><span class="p">]</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;fscale&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">func</span><span class="p">(</span><span class="n">xpts</span><span class="p">[</span><span class="n">ind_union</span><span class="p">])</span>
+
+    <span class="c1"># Prepare the Chebyshev polynomials</span>
+    <span class="n">n_coef</span> <span class="o">=</span> <span class="n">deg</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">deg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">Ax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">npts</span><span class="p">,</span> <span class="n">n_coef</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_coef</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">Tcheb</span> <span class="o">=</span> <span class="n">chebyt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">chebyt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">Ax</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">Tcheb</span><span class="p">(</span><span class="n">xpts</span><span class="p">)</span>
+
+    <span class="c1"># Use optimization to find the Chebyshev coefficients</span>
+    <span class="k">if</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;SLSQP&#39;</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">objective</span><span class="p">(</span><span class="n">coef</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">Ax</span> <span class="o">@</span> <span class="n">coef</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">ind_union</span><span class="p">]</span> <span class="o">-</span> <span class="n">fx</span><span class="p">[</span><span class="n">ind_union</span><span class="p">],</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;objnorm&#39;</span><span class="p">])</span>
+
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;ineq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">coef</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">epsil</span> <span class="o">-</span> <span class="n">Ax</span> <span class="o">@</span> <span class="n">coef</span><span class="p">},</span>
+                    <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;ineq&#39;</span><span class="p">,</span> <span class="s1">&#39;fun&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">coef</span><span class="p">:</span> <span class="n">Ax</span> <span class="o">@</span> <span class="n">coef</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">epsil</span><span class="p">)}]</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_coef</span><span class="p">),</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">x</span>
+    
+    <span class="k">elif</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;cvxpy&#39;</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">elif</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;linprog&#39;</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Method </span><span class="si">{</span><span class="n">opts</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1"> not supported&#39;</span><span class="p">)</span>
+
+    <span class="n">err_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">((</span><span class="n">Ax</span> <span class="o">@</span> <span class="n">coef</span><span class="p">)[</span><span class="n">ind_union</span><span class="p">]</span> <span class="o">-</span> <span class="n">fx</span><span class="p">[</span><span class="n">ind_union</span><span class="p">],</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;objnorm&#39;</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;norm error = </span><span class="si">{</span><span class="n">err_inf</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Make sure the maximum is less than 1</span>
+    <span class="n">coef_full</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">deg</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">coef_full</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coef_full</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">coef</span>
+
+    <span class="n">max_sol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">chebyshev</span><span class="o">.</span><span class="n">chebval</span><span class="p">(</span><span class="n">xpts</span><span class="p">,</span> <span class="n">coef_full</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;max of solution = </span><span class="si">{</span><span class="n">max_sol</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_sol</span> <span class="o">&gt;</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">1e-10</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Solution is not bounded by 1. Increase npts&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">opts</span><span class="p">[</span><span class="s1">&#39;isplot&#39;</span><span class="p">]:</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xpts</span><span class="p">,</span> <span class="n">Ax</span> <span class="o">@</span> <span class="n">coef</span><span class="p">,</span> <span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">ind_set</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xpts</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">fx</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$x$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;$f(x)$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;polynomial&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">ind_set</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xpts</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Ax</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">@</span> <span class="n">coef</span> <span class="o">-</span> <span class="n">fx</span><span class="p">[</span><span class="n">ind</span><span class="p">]),</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$x$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;$|f_</span><span class="se">\\</span><span class="s1">mathrm</span><span class="si">{poly}</span><span class="s1">(x)-f(x)|$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">coef_full</span></div>
+
+
+<div class="viewcode-block" id="get_unitary_sym">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.get_unitary_sym">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_unitary_sym</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the QSP unitary matrix based on given phase vector and point x.</span>
+
+<span class="sd">    This function constructs the full QSP unitary matrix for a given set of</span>
+<span class="sd">    phase factors at a specific point, handling both even and odd parity cases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Phase factors for the QSP circuit:</span>
+<span class="sd">        </span>
+<span class="sd">        - For parity=1: reduced phase factors</span>
+<span class="sd">        - For parity=0: phi[0] differs from reduced phase factors by factor of 2</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Point at which to evaluate the unitary, must be in [-1, 1].</span>
+<span class="sd">    parity : int</span>
+<span class="sd">        Parity of the phase factors:</span>
+<span class="sd">        </span>
+<span class="sd">        - 0 : even parity</span>
+<span class="sd">        - 1 : odd parity</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        The QSP unitary matrix constructed from the phase factors and point x.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The construction of the unitary matrix differs based on parity:</span>
+<span class="sd">    </span>
+<span class="sd">    - For odd parity: Uses full phase factors with a final gate transformation</span>
+<span class="sd">    - For even parity: Uses a different construction with modified first phase</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">Wx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">)],</span> <span class="p">[</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="n">x</span><span class="p">]])</span>
+    <span class="n">gate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">))]])</span>
+    <span class="n">expphi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">phi</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">expphi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">expphi</span><span class="p">[</span><span class="mi">0</span><span class="p">])]])</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">expphi</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">Wx</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">expphi</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">expphi</span><span class="p">[</span><span class="n">k</span><span class="p">])]]))</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">gate</span><span class="p">)</span>
+        <span class="n">qspmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">Wx</span><span class="p">),</span> <span class="n">ret</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">expphi</span><span class="p">)):</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">Wx</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">expphi</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">expphi</span><span class="p">[</span><span class="n">k</span><span class="p">])]]))</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">gate</span><span class="p">)</span>
+        <span class="n">qspmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">expphi</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">expphi</span><span class="p">[</span><span class="mi">0</span><span class="p">])]])),</span> <span class="n">ret</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">qspmat</span></div>
+
+
+<div class="viewcode-block" id="get_pim_sym">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.get_pim_sym">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pim_sym</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute imaginary part of QSP unitary matrix element.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Phase factors for QSP circuit</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Point at which to evaluate</span>
+<span class="sd">    parity : int</span>
+<span class="sd">        Parity of phase factors (0 for even, 1 for odd)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Imaginary part of (1,1) element of QSP unitary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qspmat</span> <span class="o">=</span> <span class="n">get_unitary_sym</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">qspmat</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="get_pim_sym_real">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.get_pim_sym_real">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pim_sym_real</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute imaginary part using real arithmetic.</span>
+
+<span class="sd">    Similar to get_pim_sym but uses only real arithmetic for efficiency.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Phase factors for QSP circuit</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Point at which to evaluate</span>
+<span class="sd">    parity : int</span>
+<span class="sd">        Parity of phase factors (0 for even, 1 for odd)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Imaginary part of (1,1) element of QSP unitary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)]])</span>
+    
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">B</span><span class="p">))</span>
+    
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)]</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="get_pim_deri_sym">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.get_pim_deri_sym">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pim_deri_sym</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Pim and its derivatives.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    phi : array_like</span>
+<span class="sd">        Phase factors for QSP circuit</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Point at which to evaluate</span>
+<span class="sd">    parity : int</span>
+<span class="sd">        Parity of phase factors (0 for even, 1 for odd)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ndarray</span>
+<span class="sd">        Array containing Pim and its derivatives</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)]])</span>
+    
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">B</span><span class="p">))</span>
+    
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)]</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]))</span>
+    <span class="n">y</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    
+    <span class="k">return</span> <span class="n">y</span></div>
+
+
+<div class="viewcode-block" id="get_pim_deri_sym_real">
+<a class="viewcode-back" href="../../optimization.html#optimization.utils.get_pim_deri_sym_real">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_pim_deri_sym_real</span><span class="p">(</span><span class="n">phi</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">parity</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute Pim and its Jacobian matrix values at a single point x using the real matrix representation of Pim.</span>
+
+<span class="sd">    P_im: the imaginary part of the (1,1) element of the QSP unitary matrix.</span>
+<span class="sd">    </span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Theta MUST be a number.</span>
+
+<span class="sd">    :param phi: Phase factors for QSP circuit</span>
+<span class="sd">    :type phi: array_like</span>
+<span class="sd">    :param x: Point at which to evaluate</span>
+<span class="sd">    :type x: float</span>
+<span class="sd">    :param parity: Parity of phase factors (0 for even, 1 for odd)</span>
+<span class="sd">    :type parity: int</span>
+
+<span class="sd">    :returns: Array containing Pim and its derivatives</span>
+<span class="sd">    :rtype: ndarray</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)],</span>
+                  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                  <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)]])</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                     <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">B</span><span class="p">))</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">parity</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">k</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                                    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]))</span>
+    <span class="n">y</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">phi</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">],</span>
+                                              <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]),</span> <span class="n">R</span><span class="p">[:,</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">y</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, James Larsen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
