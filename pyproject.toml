@@ -26,5 +26,12 @@ classifiers = [
 "Bug Tracker" = "https://github.com/beevus77/qsp/issues"
 "Documentation" = "https://qsp.readthedocs.io/"
 
+[project.optional-dependencies]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "nbsphinx",
+]
+
 [tool.setuptools]
 packages = ["optimization"]
