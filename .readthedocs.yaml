@@ -8,7 +8,7 @@ build:
 python:
   install:
     - method: pip
-      path: qsppack
+      path: .
     - requirements: docs/requirements.txt
 
 sphinx:
