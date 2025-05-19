@@ -26,6 +26,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
     'nbsphinx',
+    'sphinx.ext.intersphinx',
 ]
 
 templates_path = ['_templates']
@@ -57,3 +58,12 @@ napoleon_type_aliases = None
 nbsphinx_execute = 'auto'
 nbsphinx_allow_errors = True
 nbsphinx_timeout = 600
+
+# Autodoc settings
+autodoc_default_options = {
+    'members': True,
+    'member-order': 'bysource',
+    'special-members': '__init__',
+    'undoc-members': True,
+    'exclude-members': '__weakref__'
+}
