@@ -6,44 +6,67 @@ The optimization module provides functionality for Quantum Signal Processing (QS
 QSP Solver
 ----------
 
-.. automodule:: optimization.QSP_solver
+.. currentmodule:: optimization.QSP_solver
+
+.. autoclass:: optimization.QSP_solver
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__
+
+.. autofunction:: solve
 
 Core Functionality
 ------------------
 
-.. automodule:: optimization.core
+.. currentmodule:: optimization.core
+
+.. autoclass:: optimization.core
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__
+
+.. autofunction:: get_unitary
+.. autofunction:: get_unitary_sym
+.. autofunction:: get_entry
+.. autofunction:: reduced_to_full
 
 Objective and Gradient Functions
 --------------------------------
 
-.. automodule:: optimization.objective
+.. currentmodule:: optimization.objective
+
+.. autoclass:: optimization.objective
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__
+
+.. autofunction:: obj_sym
+.. autofunction:: grad_sym
+.. autofunction:: grad_sym_real
 
 Optimization Methods
 --------------------
 
-.. automodule:: optimization.optimizers
+.. currentmodule:: optimization.optimizers
+
+.. autoclass:: optimization.optimizers
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__
+
+.. autofunction:: lbfgs
+.. autofunction:: coordinate_minimization
+.. autofunction:: newton
 
 Utility Functions
 -----------------
 
-.. automodule:: optimization.utils
+.. currentmodule:: optimization.utils
+
+.. autoclass:: optimization.utils
    :members:
    :undoc-members:
    :show-inheritance:
-   :special-members: __init__ 
+
+.. autofunction:: chebyshev_to_func
+.. autofunction:: cvx_poly_coef 

@@ -4,11 +4,11 @@ This package provides tools for optimizing phase factors in Quantum Signal
 Processing problems.
 """
 
-from .QSP_solver import *
-from .core import *
-from .utils import *
-from .objective import *
-from .optimizers import *
+from .QSP_solver import solve
+from .core import get_unitary, get_unitary_sym, get_entry, reduced_to_full
+from .utils import chebyshev_to_func, cvx_poly_coef
+from .objective import obj_sym, grad_sym, grad_sym_real
+from .optimizers import lbfgs, coordinate_minimization, newton
 
 __all__ = [
     # QSP_solver
@@ -21,5 +21,12 @@ __all__ = [
     # utils
     'chebyshev_to_func',
     'cvx_poly_coef',
-    # Add all other public functions here
+    # objective
+    'obj_sym',
+    'grad_sym',
+    'grad_sym_real',
+    # optimizers
+    'lbfgs',
+    'coordinate_minimization',
+    'newton',
 ]
