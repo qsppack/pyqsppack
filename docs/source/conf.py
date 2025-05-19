@@ -28,10 +28,6 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosummary',
-    'sphinx_autodoc_typehints',
-    'sphinx_copybutton',
-    'sphinx_autodoc_defaultargs',
-    'sphinx_autodoc_napoleon_typehints',
 ]
 
 templates_path = ['_templates']
