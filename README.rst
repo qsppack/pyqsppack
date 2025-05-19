@@ -1,9 +1,38 @@
-Template for the Read the Docs tutorial
-=======================================
+QSP - Quantum Signal Processing Optimization
+===========================================
 
-This GitHub template includes fictional Python library
-with some basic Sphinx docs.
+A Python package for Quantum Signal Processing optimization and analysis.
 
-Read the tutorial here:
+Installation
+-----------
 
-https://docs.readthedocs.io/en/stable/tutorial/
+You can install the package using pip:
+
+.. code-block:: bash
+
+    pip install qsp
+
+Or install from source:
+
+.. code-block:: bash
+
+    git clone https://github.com/beevus77/qsp.git
+    cd qsp
+    pip install -e .
+
+Documentation
+------------
+
+Full documentation is available at: https://qsp.readthedocs.io/
+
+Features
+--------
+
+* Quantum Signal Processing optimization
+* Support for various optimization methods (L-BFGS, FPI, Newton)
+* Utility functions for Chebyshev polynomials and phase factor manipulation
+
+License
+-------
+
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -1,8 +1,29 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 
 [project]
-name = "lumache"
-authors = [{name = "Graziella", email = "graziella@lumache"}]
-dynamic = ["version", "description"]
+name = "qsp"
+version = "0.1.0"
+description = "Quantum Signal Processing optimization and analysis"
+readme = "README.rst"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "James Larsen"}
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/beevus77/qsp"
+"Bug Tracker" = "https://github.com/beevus77/qsp/issues"
+
+[tool.setuptools]
+packages = ["optimization"]
