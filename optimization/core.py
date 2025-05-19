@@ -199,9 +199,9 @@ def F(phi, parity, opts):
     M = np.zeros(2 * dd)
 
     if opts['useReal']:
-        f = lambda x: get_pim_sym_real(phi, x, parity)
+        f = lambda x: [get_pim_sym_real(phi, xval, parity) for xval in x]
     else:
-        f = lambda x: get_pim_sym(phi, x, parity)
+        f = lambda x: [get_pim_sym(phi, xval, parity) for xval in x]
 
     # Start Chebyshev coefficients evaluation
     M[:d+1] = f(np.cos(theta))
@@ -211,7 +211,7 @@ def F(phi, parity, opts):
     M = np.real(M)
     M /= (2 * dd)
     M[1:-1] *= 2
-    coe = M[parity::2][:d]
+    coe = M[parity:2*d:2]
 
     return coe
 
@@ -259,7 +259,7 @@ def F_Jacobian(phi, parity, opts):
     M[1:-1, :] *= 2
     M /= (2 * dd)
 
-    f = M[parity::2, -1]
-    df = M[parity::2, :-1]
+    f = M[parity::2, -1][:d]
+    df = M[parity::2, :-1][:d]
 
     return f, df

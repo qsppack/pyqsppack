@@ -211,6 +211,12 @@ def coordinate_minimization(coef, parity, opts):
     while True:
         Fval = F(phi, parity, opts)
         res = Fval - coef
+
+        # debugging
+        # Fval_j, DFval = F_Jacobian(phi, parity, opts)
+        # print("Fval from F:", Fval)
+        # print("Fval from F_Jacobian:", Fval_j)
+
         err = np.linalg.norm(res, 1)
         iter += 1
         if iter >= maxiter:

@@ -29,7 +29,7 @@ def obj_sym(phi, delta, opts):
     obj = np.zeros(m)
     for i in range(m):
         qspmat = get_unitary_sym(phi, delta[i], opts['parity'])
-        obj[i] = 0.5 * (np.real(qspmat[0, 0]) - opts['target'](delta[i]))**2
+        obj[i] = 0.5 * (np.real(qspmat[0, 0]) - opts['target']([delta[i]]))**2
 
     return obj
 
@@ -133,7 +133,7 @@ def grad_sym_real(phi, delta, opts):
         if parity == 0:
             y[0] = y[0] / 2
         y = -y  # Flip the sign
-        gap = y[-1] - targetx(x)
+        gap = y[-1] - targetx([x])
         obj[i] = 0.5 * gap**2
         grad[i, :] = y[:-1] * gap
 

@@ -6,8 +6,9 @@ and other mathematical operations needed in QSP optimization.
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import minimize
+from scipy.optimize import minimize, linprog
 from scipy.special import chebyt
+import cvxpy as cp
 
 def chebyshev_to_func(x, coef, parity, partialcoef):
     """Convert Chebyshev coefficients to function values.
@@ -129,6 +130,7 @@ def cvx_poly_coef(func, deg, opts):
         Ax[:, k-1] = Tcheb(xpts)
 
     # Use optimization to find the Chebyshev coefficients
+    coef = np.zeros(n_coef)
     if opts['method'] == 'SLSQP':
         def objective(coef):
             y = Ax @ coef
@@ -141,10 +143,48 @@ def cvx_poly_coef(func, deg, opts):
         coef = result.x
     
     elif opts['method'] == 'cvxpy':
-        pass
+        c = cp.Variable(n_coef)
+        y = Ax @ c
+        residual = y[ind_union] - fx[ind_union]
+        objective = cp.Minimize(cp.norm_inf(residual))
+        constraints = [
+            y <= 1 - epsil,
+            y >= -(1-epsil)
+        ]
+        problem = cp.Problem(objective, constraints)
+        problem.solve()
+        coef = c.value
 
     elif opts['method'] == 'linprog':
-        pass
+        e0 = np.zeros(n_coef+1)
+        e0[0] = 1
+        A_prime = Ax[ind_union, :]
+
+        # Build A_ub and b_ub
+        neg_one = -np.ones((A_prime.shape[0], 1))
+        zero_one = np.zeros((Ax.shape[0], 1))
+
+        A_ub = np.vstack([
+            np.hstack([neg_one, A_prime]),       # A'c - t <= f
+            np.hstack([neg_one, -A_prime]),      # -A'c - t <= -f
+            np.hstack([zero_one, Ax]),            # A c <= 1 - epsil
+            np.hstack([zero_one, -Ax])            # -A c <= 1 - epsil
+        ])
+
+        b_ub = np.concatenate([
+            fx[ind_union],
+            -fx[ind_union],
+            (1 - epsil) * np.ones(Ax.shape[0]),
+            (1 - epsil) * np.ones(Ax.shape[0])
+        ])
+
+        # Solve
+        result = linprog(c=e0, A_ub=A_ub, b_ub=b_ub, method='highs')
+
+        if result.success:
+            coef = result.x[1:n_coef+1]
+        else:
+            raise ValueError(f'Linear programming failed to find an optimal solution, status: {result.status}')
 
     else:
         raise ValueError(f'Method {opts["method"]} not supported')

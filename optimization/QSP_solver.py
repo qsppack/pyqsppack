@@ -77,9 +77,9 @@ def solve(coef, parity, opts):
         tot_len = len(coef)
         delta = np.cos((np.arange(1, 2 * tot_len, 2) * (np.pi / (2 * tot_len))))
         if not opts['targetPre']:
-            opts['target'] = lambda x, opts: -chebyshev_to_func(x, coef, parity, True)
+            opts['target'] = lambda x: -chebyshev_to_func(x, coef, parity, True)
         else:
-            opts['target'] = lambda x, opts: chebyshev_to_func(x, coef, parity, True)
+            opts['target'] = lambda x: chebyshev_to_func(x, coef, parity, True)
         opts['parity'] = parity
         obj = obj_sym
         grad = grad_sym_real if opts['useReal'] else grad_sym
