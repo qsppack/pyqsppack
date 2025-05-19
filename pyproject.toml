@@ -20,6 +20,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Physics",
 ]
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/beevus77/qsp"
@@ -31,6 +36,10 @@ docs = [
     "sphinx",
     "sphinx-rtd-theme",
     "nbsphinx",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "ipython",
 ]
 
 [tool.setuptools]

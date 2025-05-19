@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to QSP's documentation!
-==============================
+===============================
 
 QSP is a Python package for Quantum Signal Processing optimization and analysis.
 
