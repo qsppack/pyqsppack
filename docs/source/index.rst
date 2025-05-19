@@ -22,6 +22,14 @@ You can install qsp using pip:
 
 .. code-block:: bash
 
+   pip install qsppack
+
+Or install from source:
+
+.. code-block:: bash
+
+   git clone https://github.com/beevus77/qsp.git
+   cd qsp
    pip install -e .
 
 Indices and tables

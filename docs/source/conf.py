@@ -28,6 +28,10 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.intersphinx',
     'sphinx.ext.autosummary',
+    'sphinx_autodoc_typehints',
+    'sphinx_copybutton',
+    'sphinx_autodoc_defaultargs',
+    'sphinx_autodoc_napoleon_typehints',
 ]
 
 templates_path = ['_templates']
@@ -73,8 +77,16 @@ autodoc_default_options = {
     'exclude-members': '__weakref__',
     'show-inheritance': True,
     'imported-members': True,
+    'inherited-members': True,
 }
 
 # Autosummary settings
 autosummary_generate = True
 autosummary_imported_members = True
+
+# Intersphinx settings
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
+}
