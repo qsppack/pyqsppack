@@ -10,6 +10,7 @@ QSP Solver
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 Core Functionality
 ------------------
@@ -18,6 +19,7 @@ Core Functionality
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 Objective and Gradient Functions
 --------------------------------
@@ -26,6 +28,7 @@ Objective and Gradient Functions
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 Optimization Methods
 --------------------
@@ -34,6 +37,7 @@ Optimization Methods
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __init__
 
 Utility Functions
 -----------------
@@ -41,4 +45,5 @@ Utility Functions
 .. automodule:: optimization.utils
    :members:
    :undoc-members:
-   :show-inheritance: 
+   :show-inheritance:
+   :special-members: __init__ 
