@@ -3,10 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to qsp's documentation!
-================================
+Welcome to QSP's documentation!
+==============================
 
-qsp is a Python package for Quantum Signal Processing optimization and analysis.
+QSP is a Python package for Quantum Signal Processing optimization and analysis.
 
 .. toctree::
    :maxdepth: 2
@@ -18,19 +18,15 @@ qsp is a Python package for Quantum Signal Processing optimization and analysis.
 Installation
 ------------
 
-You can install qsp using pip:
+You can install QSP using pip::
 
-.. code-block:: bash
+    pip install qsppack
 
-   pip install qsppack
+Or install from source::
 
-Or install from source:
-
-.. code-block:: bash
-
-   git clone https://github.com/beevus77/qsp.git
-   cd qsp
-   pip install -e .
+    git clone https://github.com/beevus77/qsp.git
+    cd qsp
+    pip install -e .
 
 Indices and tables
 ==================
