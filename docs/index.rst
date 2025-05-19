@@ -1,12 +1,12 @@
-.. QSPy documentation master file, created by
+.. qsp documentation master file, created by
    sphinx-quickstart on Thu May  8 15:36:23 2025.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to QSPy's documentation!
+Welcome to qsp's documentation!
 ================================
 
-QSPy is a Python package for Quantum Signal Processing optimization and analysis.
+qsp is a Python package for Quantum Signal Processing optimization and analysis.
 
 .. toctree::
    :maxdepth: 2
@@ -18,7 +18,7 @@ QSPy is a Python package for Quantum Signal Processing optimization and analysis
 Installation
 ------------
 
-You can install QSPy using pip:
+You can install qsp using pip:
 
 .. code-block:: bash
 
