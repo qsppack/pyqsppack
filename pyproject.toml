@@ -24,6 +24,7 @@ dependencies = [
     "numpy",
     "scipy",
     "matplotlib",
+    "cvxpy",
 ]
 
 [project.urls]
@@ -33,13 +34,14 @@ dependencies = [
 
 [project.optional-dependencies]
 docs = [
-    "sphinx",
+    "sphinx>=7.0.0",
     "sphinx-rtd-theme",
-    "nbsphinx",
+    "nbsphinx>=0.9.3",
     "numpy",
     "scipy",
     "matplotlib",
     "ipython",
+    "cvxpy",
 ]
 
 [tool.setuptools]
