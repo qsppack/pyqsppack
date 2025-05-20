@@ -10,7 +10,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
-project = 'qsp'
+project = 'qsppack'
 copyright = '2025, James Larsen'
 author = 'James Larsen'
 
@@ -42,8 +42,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_title = 'QSP Documentation'
-html_short_title = 'QSP'
+html_title = 'qsppack Documentation'
+html_short_title = 'qsppack'
 
 # Napoleon settings
 napoleon_google_docstring = True
