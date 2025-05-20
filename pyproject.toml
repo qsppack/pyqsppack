@@ -28,9 +28,9 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/beevus77/qsp"
-"Bug Tracker" = "https://github.com/beevus77/qsp/issues"
-"Documentation" = "https://qsp.readthedocs.io/"
+"Homepage" = "https://github.com/beevus77/qsppack"
+"Bug Tracker" = "https://github.com/beevus77/qsppack/issues"
+"Documentation" = "https://qsppack.readthedocs.io/"
 
 [project.optional-dependencies]
 docs = [

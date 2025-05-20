@@ -1,5 +1,5 @@
-qsp - Quantum Signal Processing Optimization
-============================================
+qsppack - Quantum Signal Processing Package
+===========================================
 
 A Python package for Quantum Signal Processing optimization and analysis.
 
@@ -23,7 +23,7 @@ Or install from source:
 Documentation
 -------------
 
-Full documentation is available at: https://qsp.readthedocs.io/
+Full documentation is available at: https://qsppack.readthedocs.io/
 
 Features
 --------
