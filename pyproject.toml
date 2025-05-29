@@ -45,4 +45,4 @@ docs = [
 ]
 
 [tool.setuptools]
-packages = ["optimization"]
+packages = ["qsppack"]
