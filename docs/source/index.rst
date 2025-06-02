@@ -12,7 +12,10 @@ qsppack is a Python package for Quantum Signal Processing optimization and analy
    :maxdepth: 2
    :caption: Contents:
 
-   optimization
+   solver
+   objective
+   optimizers
+   utils
    examples
 
 Installation
@@ -27,6 +30,10 @@ Or install from source::
     git clone https://github.com/beevus77/qsppack.git
     cd qsppack
     pip install -e .
+
+For development and testing, install with test dependencies::
+
+    pip install -e ".[test]"
 
 Indices and tables
 ==================
