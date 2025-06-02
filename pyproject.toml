@@ -42,6 +42,7 @@ docs = [
     "matplotlib",
     "ipython",
     "cvxpy",
+    "tomli",
 ]
 test = [
     "pytest>=7.0.0",

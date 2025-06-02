@@ -8,14 +8,18 @@
 
 import os
 import sys
+import tomli
 sys.path.insert(0, os.path.abspath('../..'))
+
+# Read version from pyproject.toml
+with open("../../pyproject.toml", "rb") as f:
+    pyproject = tomli.load(f)
+    version = pyproject["project"]["version"]
+    release = version
 
 project = 'qsppack'
 copyright = '2025, James Larsen'
 author = 'James Larsen'
-
-version = '0.2.1'
-release = '0.2.1'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
