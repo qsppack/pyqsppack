@@ -543,4 +543,101 @@ def get_pim_deri_sym_real(phi, x, parity):
         
         ret[k] = U[0, 1]
 
-    return ret 
+    return ret
+
+def F(phi, parity, opts):
+    """Compute the Chebyshev coefficients of P_im.
+    
+    P_im is the imaginary part of the (1,1) element of the QSP unitary matrix.
+
+    Parameters
+    ----------
+    phi : array_like
+        Reduced phase factors
+    parity : int
+        Parity of phi (0 for even, 1 for odd)
+    opts : dict
+        Options dictionary with fields:
+            - useReal : bool
+                Whether to use real matrix multiplication
+
+    Returns
+    -------
+    ndarray
+        Chebyshev coefficients of P_im w.r.t. 
+        T_(2k) for even parity or T_(2k-1) for odd parity
+    """
+    # Setup options for CM solver
+    opts.setdefault('useReal', True)
+
+    # Initial preparation
+    d = len(phi)
+    dd = 2 * d
+    theta = np.arange(d + 1) * np.pi / dd
+    M = np.zeros(2 * dd)
+
+    if opts['useReal']:
+        f = lambda x: [get_pim_sym_real(phi, xval, parity) for xval in x]
+    else:
+        f = lambda x: [get_pim_sym(phi, xval, parity) for xval in x]
+
+    # Start Chebyshev coefficients evaluation
+    M[:d+1] = f(np.cos(theta))
+    M[d+1:dd+1] = (-1)**parity * M[d-1::-1]
+    M[dd+1:] = M[dd-1:0:-1]
+    M = np.fft.fft(M)  # FFT w.r.t. columns.
+    M = np.real(M)
+    M /= (2 * dd)
+    M[1:-1] *= 2
+    coe = M[parity:2*d:2]
+
+    return coe
+
+def F_Jacobian(phi, parity, opts):
+    """Compute the Jacobian matrix of Chebyshev coefficients.
+
+    Parameters
+    ----------
+    phi : array_like
+        Reduced phase factors
+    parity : int
+        Parity of phi (0 for even, 1 for odd)
+    opts : dict
+        Options dictionary with fields:
+            - useReal : bool
+                Whether to use real matrix multiplication
+
+    Returns
+    -------
+    ndarray
+        Jacobian matrix of Chebyshev coefficients
+    """
+    # Setup options
+    opts.setdefault('useReal', True)
+
+    # Initial preparation
+    if opts['useReal']:
+        f = lambda x: get_pim_deri_sym_real(phi, x, parity)
+    else:
+        f = lambda x: get_pim_deri_sym(phi, x, parity)
+
+    d = len(phi)
+    dd = 2 * d
+    theta = np.arange(d + 1) * np.pi / dd
+    M = np.zeros((2 * dd, d + 1))
+
+    for n in range(d + 1):
+        M[n, :] = f(np.cos(theta[n]))
+
+    M[d + 1:dd + 1, :] = (-1) ** parity * M[d - 1::-1, :]
+    M[dd + 1:, :] = M[dd - 1:0:-1, :]
+
+    M = np.fft.fft(M, axis=0)  # FFT w.r.t. columns.
+    M = np.real(M[:dd + 1, :])
+    M[1:-1, :] *= 2
+    M /= (2 * dd)
+
+    f = M[parity::2, -1][:d]
+    df = M[parity::2, :-1][:d]
+
+    return f, df
