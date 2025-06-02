@@ -9,6 +9,8 @@ The utils module provides various utility functions for QSP operations.
 .. autofunction:: reduced_to_full
 .. autofunction:: chebyshev_to_func
 .. autofunction:: cvx_poly_coef
+.. autofunction:: F
+.. autofunction:: F_Jacobian
 
 These utility functions provide essential operations for QSP calculations, including unitary matrix generation, phase factor conversion, and polynomial coefficient manipulation.
 
@@ -17,7 +19,7 @@ Example usage:
 .. code-block:: python
 
     import numpy as np
-    from qsppack.utils import get_unitary, reduced_to_full, chebyshev_to_func
+    from qsppack.utils import get_unitary, reduced_to_full, chebyshev_to_func, F, F_Jacobian
 
     # Generate unitary matrix for given phase factors
     phase_factors = np.array([0.1, 0.2, 0.3])
@@ -29,4 +31,9 @@ Example usage:
     # Convert Chebyshev coefficients to function values
     cheb_coefs = np.array([1, 0, 1])
     x = np.linspace(-1, 1, 100)
-    func_values = chebyshev_to_func(cheb_coefs, x) 
+    func_values = chebyshev_to_func(cheb_coefs, x)
+
+    # Evaluate F function and its Jacobian
+    x = 0.5
+    f_value = F(x)
+    jacobian = F_Jacobian(x) 
