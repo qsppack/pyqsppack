@@ -12,7 +12,7 @@ from .objective import (
     get_pim_deri_sym, get_pim_deri_sym_real
 )
 from .utils import F, F_Jacobian
-from .nlft import b_from_cheb, weiss, inverse_nonlinear_FFT, forward_nlft
+from .nlfa import b_from_cheb, weiss, inverse_nonlinear_FFT
 
 def lbfgs(obj, grad, delta, phi, opts):
     """L-BFGS optimization for QSP phase factors.

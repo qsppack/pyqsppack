@@ -16,6 +16,7 @@ qsppack is a Python package for Quantum Signal Processing optimization and analy
    objective
    optimizers
    utils
+   nlfa
    examples
 
 Installation
