@@ -12,6 +12,7 @@ from .objective import (
     get_pim_deri_sym, get_pim_deri_sym_real
 )
 from .utils import F, F_Jacobian
+from .nlft import b_from_cheb, weiss, inverse_nonlinear_FFT, forward_nlft
 
 def lbfgs(obj, grad, delta, phi, opts):
     """L-BFGS optimization for QSP phase factors.
@@ -306,3 +307,27 @@ def newton(coef, parity, opts):
 
     runtime = time.time() - start_time
     return phi, err, iter, runtime 
+
+def nlft(coef, parity, opts):
+    """NLFT optimization for QSP phase factors.
+
+    This function implements the NLFT algorithm for finding optimal phase
+    factors in QSP problems.
+
+    Parameters
+    ----------
+    coef : array_like
+        Coefficients of polynomial P under Chebyshev basis
+    parity : int
+        Parity of polynomial P (0 for even, 1 for odd)
+    opts : dict
+    """
+    opts.setdefault('N', 256)
+
+    start_time = time.time()
+    b_coeffs = b_from_cheb(coef, parity)
+    a_coeffs = weiss(b_coeffs, opts['N'])
+    gammas, _, _ = inverse_nonlinear_FFT(a_coeffs, b_coeffs)
+    phis = np.arctan(gammas)
+    runtime = time.time() - start_time
+    return phis, -1, -1, runtime
