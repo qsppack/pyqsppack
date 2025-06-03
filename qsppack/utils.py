@@ -458,17 +458,33 @@ def get_pim_sym_real(phi, x, parity):
     float
         Imaginary part of the (1,1) element of the QSP unitary matrix
     """
-    Wx = np.array([[x, np.sqrt(1 - x**2)], [-np.sqrt(1 - x**2), x]])
-    cosphi = np.cos(phi)
-    sinphi = np.sin(phi)
-
-    ret = np.array([[cosphi[0], -sinphi[0]], [sinphi[0], cosphi[0]]])
-
-    for k in range(1, len(phi)):
-        temp = np.array([[cosphi[k], -sinphi[k]], [sinphi[k], cosphi[k]]])
-        ret = np.dot(np.dot(ret, Wx), temp)
-
-    return ret[0, 1]
+    n = len(phi)
+    theta = np.arccos(x)
+    
+    # Define the 3D rotation matrix B
+    B = np.array([
+        [np.cos(2*theta), 0, -np.sin(2*theta)],
+        [0, 1, 0],
+        [np.sin(2*theta), 0, np.cos(2*theta)]
+    ])
+    
+    # Initialize R based on parity
+    if parity == 0:
+        R = np.array([1, 0, 0])
+    else:
+        R = np.array([np.cos(theta), 0, np.sin(theta)])
+    
+    # Apply rotations
+    for k in range(1, n):
+        R_phi = np.array([
+            [np.cos(2*phi[k]), -np.sin(2*phi[k]), 0],
+            [np.sin(2*phi[k]), np.cos(2*phi[k]), 0],
+            [0, 0, 1]
+        ])
+        R = B @ R_phi @ R
+    
+    # Final projection
+    return np.array([np.sin(2*phi[-1]), np.cos(2*phi[-1]), 0]) @ R
 
 def get_pim_deri_sym(phi, x, parity):
     """Get the derivative of the imaginary part of the QSP unitary matrix.
@@ -522,28 +538,71 @@ def get_pim_deri_sym_real(phi, x, parity):
     Returns
     -------
     ndarray
-        Derivatives of the imaginary part with respect to each phase factor
+        Derivatives of the imaginary part with respect to each phase factor,
+        plus one additional derivative term
     """
-    Wx = np.array([[x, np.sqrt(1 - x**2)], [-np.sqrt(1 - x**2), x]])
-    cosphi = np.cos(phi)
-    sinphi = np.sin(phi)
-    d = len(phi)
-    ret = np.zeros(d)
-
-    for k in range(d):
-        temp = np.array([[-sinphi[k], -cosphi[k]], [cosphi[k], -sinphi[k]]])
-        U = np.array([[cosphi[0], -sinphi[0]], [sinphi[0], cosphi[0]]])
-        
-        for i in range(1, d):
-            if i == k:
-                U = np.dot(np.dot(U, Wx), temp)
-            else:
-                temp2 = np.array([[cosphi[i], -sinphi[i]], [sinphi[i], cosphi[i]]])
-                U = np.dot(np.dot(U, Wx), temp2)
-        
-        ret[k] = U[0, 1]
-
-    return ret
+    n = len(phi)
+    print(f"Inside get_pim_deri_sym_real: n = {n}")
+    theta = np.arccos(x)
+    
+    # Define the 3D rotation matrix B
+    B = np.array([
+        [np.cos(2*theta), 0, -np.sin(2*theta)],
+        [0, 1, 0],
+        [np.sin(2*theta), 0, np.cos(2*theta)]
+    ])
+    
+    # Initialize L matrix (n x 3)
+    L = np.zeros((n, 3))
+    L[n-1, :] = np.array([0, 1, 0])
+    
+    # Compute L matrix
+    for k in range(n-2, -1, -1):
+        R_phi = np.array([
+            [np.cos(2*phi[k+1]), -np.sin(2*phi[k+1]), 0],
+            [np.sin(2*phi[k+1]), np.cos(2*phi[k+1]), 0],
+            [0, 0, 1]
+        ])
+        L[k, :] = L[k+1, :] @ R_phi @ B
+    
+    # Initialize R matrix (3 x n)
+    R = np.zeros((3, n))
+    if parity == 0:
+        R[:, 0] = np.array([1, 0, 0])
+    else:
+        R[:, 0] = np.array([np.cos(theta), 0, np.sin(theta)])
+    
+    # Compute R matrix
+    for k in range(1, n):
+        R_phi = np.array([
+            [np.cos(2*phi[k-1]), -np.sin(2*phi[k-1]), 0],
+            [np.sin(2*phi[k-1]), np.cos(2*phi[k-1]), 0],
+            [0, 0, 1]
+        ])
+        R[:, k] = B @ (R_phi @ R[:, k-1])
+    
+    # Compute derivatives
+    y = np.zeros(n + 1)  # Note: n+1 size to match MATLAB
+    print(f"Created y array of size: {y.shape}")
+    
+    for k in range(n):
+        D_phi = np.array([
+            [-np.sin(2*phi[k]), -np.cos(2*phi[k]), 0],
+            [np.cos(2*phi[k]), -np.sin(2*phi[k]), 0],
+            [0, 0, 0]
+        ])
+        y[k] = 2 * L[k, :] @ D_phi @ R[:, k]
+    
+    # Compute final derivative (n+1)th term
+    R_phi = np.array([
+        [np.cos(2*phi[n-1]), -np.sin(2*phi[n-1]), 0],
+        [np.sin(2*phi[n-1]), np.cos(2*phi[n-1]), 0],
+        [0, 0, 1]
+    ])
+    y[n] = L[n-1, :] @ R_phi @ R[:, n-1]
+    
+    print(f"Returning y array of size: {y.shape}")
+    return y
 
 def F(phi, parity, opts):
     """Compute the Chebyshev coefficients of P_im.
@@ -609,8 +668,10 @@ def F_Jacobian(phi, parity, opts):
 
     Returns
     -------
-    ndarray
-        Jacobian matrix of Chebyshev coefficients
+    tuple
+        (f, df) where:
+        - f is the function values (Chebyshev coefficients)
+        - df is the Jacobian matrix (square matrix)
     """
     # Setup options
     opts.setdefault('useReal', True)
@@ -624,20 +685,34 @@ def F_Jacobian(phi, parity, opts):
     d = len(phi)
     dd = 2 * d
     theta = np.arange(d + 1) * np.pi / dd
-    M = np.zeros((2 * dd, d + 1))
+    
+    # Create matrix for storing derivatives - ensure it's square
+    M = np.zeros((2 * dd, d))
 
+    # Debug prints
+    print(f"phi length: {len(phi)}")
+    print(f"M shape: {M.shape}")
+    test_deriv = f(np.cos(theta[0]))
+    print(f"Derivative shape: {test_deriv.shape}")
+
+    # Fill the first d+1 rows with derivatives
     for n in range(d + 1):
-        M[n, :] = f(np.cos(theta[n]))
+        deriv = f(np.cos(theta[n]))
+        M[n, :] = deriv[:d]  # Take only first d elements
 
+    # Fill the rest of the matrix using symmetry
     M[d + 1:dd + 1, :] = (-1) ** parity * M[d - 1::-1, :]
     M[dd + 1:, :] = M[dd - 1:0:-1, :]
 
-    M = np.fft.fft(M, axis=0)  # FFT w.r.t. columns.
+    # Apply FFT and normalize
+    M = np.fft.fft(M, axis=0)
     M = np.real(M[:dd + 1, :])
     M[1:-1, :] *= 2
     M /= (2 * dd)
 
+    # Extract function values and Jacobian
+    # Ensure we get a square Jacobian matrix
     f = M[parity::2, -1][:d]
-    df = M[parity::2, :-1][:d]
+    df = M[parity::2, :-1][:d, :d]  # Take only d x d submatrix to ensure square
 
     return f, df

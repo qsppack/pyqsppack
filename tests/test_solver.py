@@ -2,7 +2,8 @@
 
 import numpy as np
 import pytest
-from qsppack import solve
+from qsppack.solver import solve
+from qsppack.utils import cvx_poly_coef
 
 def test_solve_basic():
     """Test basic functionality of solve function."""
@@ -61,3 +62,33 @@ def test_solve_different_parity():
     assert phi is not None
     assert out is not None
     assert out['parity'] == parity 
+
+def test_solve_gibbs():
+    """Test solve function for Gibbs state preparation."""
+    # set parameters for polynomial approximation
+    beta = 2
+    targ = lambda x: np.exp(-beta * x)
+    deg = 151
+    parity = deg % 2
+    delta = 0.2
+
+    # options for cvx_poly_coef
+    opts = {
+        'intervals': [delta, 1],
+        'objnorm': 2,
+        'epsil': 0.2,
+        'npts': 500,
+        'fscale': 1,
+        'isplot': False,
+        'method': 'cvxpy',
+        'maxiter': 100
+    }
+
+    coef_full = cvx_poly_coef(targ, deg, opts)
+    coef = coef_full[parity::2]
+    
+    opts['criteria'] = 1e-12
+    opts['useReal'] = False
+    opts['targetPre'] = True
+    opts['method'] = 'Newton'
+    angles, out = solve(coef, parity, opts)

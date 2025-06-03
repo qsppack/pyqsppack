@@ -8,7 +8,7 @@ import numpy as np
 from time import time
 from .utils import chebyshev_to_func, reduced_to_full
 from .objective import obj_sym, grad_sym, grad_sym_real
-from .optimizers import lbfgs, coordinate_minimization, newton
+from .optimizers import lbfgs, coordinate_minimization, newton, nlft
 
 def solve(coef, parity, opts):
     """Given coefficients of a polynomial P, yield corresponding phase factors.
@@ -96,6 +96,9 @@ def solve(coef, parity, opts):
 
     elif opts['method'] == 'Newton':
         phi, err, iter, runtime = newton(coef, parity, opts)
+
+    elif opts['method'] == 'NLFT':
+        phi, err, iter, runtime = nlft(coef, parity, opts)
 
     else:
         print("Assigned method doesn't exist. Please choose method from 'LBFGS', 'FPI' or 'Newton'.")
