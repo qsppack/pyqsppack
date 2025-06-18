@@ -503,25 +503,41 @@ def get_pim_deri_sym(phi, x, parity):
     ndarray
         Derivatives of the imaginary part with respect to each phase factor
     """
-    Wx = np.array([[x, 1j * np.sqrt(1 - x**2)], [1j * np.sqrt(1 - x**2), x]])
-    expphi = np.exp(1j * phi)
-    d = len(phi)
-    ret = np.zeros(d, dtype=complex)
-
-    for k in range(d):
-        temp = np.array([[1j * expphi[k], 0], [0, -1j * np.conj(expphi[k])]])
-        U = np.array([[expphi[0], 0], [0, np.conj(expphi[0])]])
-        
-        for i in range(1, d):
-            if i == k:
-                U = np.dot(np.dot(U, Wx), temp)
-            else:
-                temp2 = np.array([[expphi[i], 0], [0, np.conj(expphi[i])]])
-                U = np.dot(np.dot(U, Wx), temp2)
-        
-        ret[k] = U[0, 0]
-
-    return np.imag(ret)
+    n = len(phi)
+    theta = np.arccos(x)
+    B = np.array([[np.cos(2 * theta), 0, -np.sin(2 * theta)],
+                  [0, 1, 0],
+                  [np.sin(2 * theta), 0, np.cos(2 * theta)]])
+    
+    L = np.zeros((n, 3))
+    L[n-1, :] = [0, 1, 0]
+    
+    for k in range(n-2, -1, -1):
+        L[k, :] = np.dot(L[k+1, :], np.dot(np.array([[np.cos(2 * phi[k+1]), -np.sin(2 * phi[k+1]), 0],
+                                                     [np.sin(2 * phi[k+1]), np.cos(2 * phi[k+1]), 0],
+                                                     [0, 0, 1]]), B))
+    
+    R = np.zeros((3, n))
+    if parity == 0:
+        R[:, 0] = [1, 0, 0]
+    else:
+        R[:, 0] = [np.cos(theta), 0, np.sin(theta)]
+    
+    for k in range(1, n):
+        R[:, k] = np.dot(B, np.dot(np.array([[np.cos(2 * phi[k-1]), -np.sin(2 * phi[k-1]), 0],
+                                             [np.sin(2 * phi[k-1]), np.cos(2 * phi[k-1]), 0],
+                                             [0, 0, 1]]), R[:, k-1]))
+    
+    y = np.zeros(n+1)
+    for k in range(n):
+        y[k] = 2 * np.dot(L[k, :], np.dot(np.array([[-np.sin(2 * phi[k]), -np.cos(2 * phi[k]), 0],
+                                                    [np.cos(2 * phi[k]), -np.sin(2 * phi[k]), 0],
+                                                    [0, 0, 0]]), R[:, k]))
+    y[n] = np.dot(L[n-1, :], np.dot(np.array([[np.cos(2 * phi[n-1]), -np.sin(2 * phi[n-1]), 0],
+                                              [np.sin(2 * phi[n-1]), np.cos(2 * phi[n-1]), 0],
+                                              [0, 0, 1]]), R[:, n-1]))
+    
+    return y
 
 def get_pim_deri_sym_real(phi, x, parity):
     """Get the derivative of the imaginary part using real arithmetic.
@@ -542,7 +558,6 @@ def get_pim_deri_sym_real(phi, x, parity):
         plus one additional derivative term
     """
     n = len(phi)
-    print(f"Inside get_pim_deri_sym_real: n = {n}")
     theta = np.arccos(x)
     
     # Define the 3D rotation matrix B
@@ -583,7 +598,6 @@ def get_pim_deri_sym_real(phi, x, parity):
     
     # Compute derivatives
     y = np.zeros(n + 1)  # Note: n+1 size to match MATLAB
-    print(f"Created y array of size: {y.shape}")
     
     for k in range(n):
         D_phi = np.array([
@@ -601,7 +615,6 @@ def get_pim_deri_sym_real(phi, x, parity):
     ])
     y[n] = L[n-1, :] @ R_phi @ R[:, n-1]
     
-    print(f"Returning y array of size: {y.shape}")
     return y
 
 def F(phi, parity, opts):
