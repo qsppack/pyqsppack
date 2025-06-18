@@ -685,34 +685,20 @@ def F_Jacobian(phi, parity, opts):
     d = len(phi)
     dd = 2 * d
     theta = np.arange(d + 1) * np.pi / dd
-    
-    # Create matrix for storing derivatives - ensure it's square
-    M = np.zeros((2 * dd, d))
+    M = np.zeros((2 * dd, d + 1))
 
-    # Debug prints
-    print(f"phi length: {len(phi)}")
-    print(f"M shape: {M.shape}")
-    test_deriv = f(np.cos(theta[0]))
-    print(f"Derivative shape: {test_deriv.shape}")
-
-    # Fill the first d+1 rows with derivatives
     for n in range(d + 1):
-        deriv = f(np.cos(theta[n]))
-        M[n, :] = deriv[:d]  # Take only first d elements
+        M[n, :] = f(np.cos(theta[n]))
 
-    # Fill the rest of the matrix using symmetry
     M[d + 1:dd + 1, :] = (-1) ** parity * M[d - 1::-1, :]
     M[dd + 1:, :] = M[dd - 1:0:-1, :]
 
-    # Apply FFT and normalize
-    M = np.fft.fft(M, axis=0)
+    M = np.fft.fft(M, axis=0)  # FFT w.r.t. columns.
     M = np.real(M[:dd + 1, :])
     M[1:-1, :] *= 2
     M /= (2 * dd)
 
-    # Extract function values and Jacobian
-    # Ensure we get a square Jacobian matrix
     f = M[parity::2, -1][:d]
-    df = M[parity::2, :-1][:d, :d]  # Take only d x d submatrix to ensure square
+    df = M[parity::2, :-1][:d]
 
     return f, df
