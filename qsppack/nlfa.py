@@ -169,3 +169,63 @@ def forward_nlft(gammas):
     for k, gamma in enumerate(gammas):
         res = res @ np.array([[1, gamma*(z**k)], [-np.conj(gamma)*(z**(-k)), 1]]) / np.sqrt(1 + np.abs(gamma)**2)
     return np.array(Poly(res[0,1]).all_coeffs()[::-1], dtype=np.float64)
+
+
+def forward_nonlinear_FFT(gammas: np.ndarray, m=0, debug=False) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Computes the forward nonlinear FFT, producing the polynomials a^* and b
+    from the rotation parameters gammas.
+
+    Parameters
+    ----------
+    gammas : np.ndarray
+        Array of complex rotation parameters gamma_k of length n.
+    m : int, optional
+        starting index of gammas to use in the recursion.
+
+    Returns
+    -------
+    tuple of np.ndarray
+        A tuple (a_star, b) of length n+1 and n respectively, where a_star
+        is the conjugate polynomial coefficients of a^*(z), and b is b(z).
+    """
+    n = len(gammas)
+
+    # base case
+    if n <= 2:
+        prefactor = 1 / np.sqrt(1 + np.abs(gammas[0])**2)
+        if n == 2:
+            prefactor /= np.sqrt(1 + np.abs(gammas[1])**2)
+        if debug:
+            prefactor = 1
+        b = prefactor * np.append(np.zeros(m), gammas)
+        a_star = prefactor * np.array([1, -np.conj(gammas[0])*gammas[1]]) if n == 2 else np.array([prefactor])
+        return a_star, b
+    
+    # recursive step
+    m_new = int(np.ceil(n/2))
+    if debug:
+        print("m={}, n={}".format(m, n))
+    a_star_left, b_left = forward_nonlinear_FFT(gammas[:m_new], debug=debug)
+    a_star_right, b_right = forward_nonlinear_FFT(gammas[m_new:], m_new, debug=debug)
+    
+    # compute the convolution of the left and right parts
+    if debug:
+        print("a_star_left: ", a_star_left)
+        print("b_left: ", b_left)
+        print("a_star_right: ", a_star_right)
+        print("b_right: ", b_right)
+        print("b1: ", fftconvolve(np.conj(a_star_left[::-1]), b_right))
+        print("b2: ", fftconvolve(a_star_right, b_left))
+    b1 = fftconvolve(np.conj(a_star_left[::-1]), b_right)
+    b1 = b1[len(a_star_left)-1:]
+    b2 = fftconvolve(a_star_right, b_left)
+    b2 = np.append(b2, np.zeros(len(b1)-len(b2)))
+    a_star1 = -fftconvolve(np.conj(b_left[::-1]), b_right)
+    a_star1 = a_star1[len(b_left)-1:]
+    a_star2 = fftconvolve(a_star_left, a_star_right)
+    a_star2 = np.append(a_star2, np.zeros(len(a_star1)-len(a_star2)))
+    b = b1 + b2
+    a_star = a_star1 + a_star2
+
+    return a_star, np.append(np.zeros(m), b)
