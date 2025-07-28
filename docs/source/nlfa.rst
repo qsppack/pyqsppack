@@ -9,12 +9,14 @@ The nonlinear Fourier analysis (NLFA) module provides functions for working with
 .. autofunction:: weiss
 .. autofunction:: inverse_nonlinear_FFT
 .. autofunction:: forward_nlft
+.. autofunction:: forward_nonlinear_FFT
 
 These functions provide essential operations for nonlinear Fourier analysis, including:
 - Converting Chebyshev coefficients to complex polynomial coefficients
 - Computing the Weiss algorithm for polynomial coefficients
 - Performing inverse nonlinear FFT operations
 - Computing forward nonlinear Fourier transforms
+- Computing forward nonlinear FFT with recursive algorithm
 
 Example usage:
 
@@ -34,4 +36,7 @@ Example usage:
     gammas, xi_n, eta_n = inverse_nonlinear_FFT(a_coefs, b_coefs)
 
     # Compute forward nonlinear Fourier transform
-    result = forward_nlft(gammas) 
+    result = forward_nlft(gammas)
+    
+    # Compute forward nonlinear FFT with recursive algorithm
+    a_star, b = forward_nonlinear_FFT(gammas) 

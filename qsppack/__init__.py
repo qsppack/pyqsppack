@@ -11,6 +11,9 @@ from .utils import (
 )
 from .objective import obj_sym, grad_sym, grad_sym_real
 from .optimizers import lbfgs, coordinate_minimization, newton
+from .nlfa import (
+    b_from_cheb, weiss, inverse_nonlinear_FFT, forward_nlft, forward_nonlinear_FFT
+)
 
 __all__ = [
     # solver
@@ -30,4 +33,10 @@ __all__ = [
     'lbfgs',
     'coordinate_minimization',
     'newton',
+    # nlfa
+    'b_from_cheb',
+    'weiss',
+    'inverse_nonlinear_FFT',
+    'forward_nlft',
+    'forward_nonlinear_FFT',
 ] 
