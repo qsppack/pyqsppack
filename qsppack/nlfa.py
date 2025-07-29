@@ -83,11 +83,11 @@ def weiss(b, N):
     array([ 0.47379318,  0.09424218,  0.11612456, -0.24713393, -0.06540336, -0.26132533])
     """
     z = np.exp(1j*2*np.arange(N)*np.pi/N)  # get the Nth roots of unity
-    bz = np.array([np.dot(b, np.pow(zj, np.arange(len(b)))) for zj in z])  # evaluate b(z) for all roots of unity
+    bz = np.array([np.dot(b, np.power(zj, np.arange(len(b)))) for zj in z])  # evaluate b(z) for all roots of unity
     R = 0.5 * np.log1p(-np.abs(bz)**2 + 0j)
     R_hat_full = fft(R) / N
     R_hat = np.append(R_hat_full[0], 2*R_hat_full[int(N/2):][::-1])  # discard positive frequencies, double negative frequencies
-    G_star = np.array([np.dot(R_hat, np.pow(zj, np.arange(len(R_hat)))) for zj in z])
+    G_star = np.array([np.dot(R_hat, np.power(zj, np.arange(len(R_hat)))) for zj in z])
     a_star = ifft(np.exp(G_star))
     return np.real_if_close(np.append(a_star[0],a_star[-len(b)+1:][::-1]))
 
