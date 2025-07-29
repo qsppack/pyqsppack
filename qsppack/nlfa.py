@@ -124,7 +124,7 @@ def inverse_nonlinear_FFT(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.
     
     # Step 2: first recursive call
     m = int(np.ceil(n/2))
-    gammas = np.zeros(n)
+    gammas = np.zeros(n, dtype=np.complex128)
     gammas[:m], xi_m, eta_m = inverse_nonlinear_FFT(a[:m], b[:m])
 
     # Step 3: compute coefficients of am and bm
@@ -198,7 +198,7 @@ def forward_nonlinear_FFT(gammas: np.ndarray, m=0, debug=False) -> tuple[np.ndar
             prefactor /= np.sqrt(1 + np.abs(gammas[1])**2)
         if debug:
             prefactor = 1
-        b = prefactor * np.append(np.zeros(m), gammas)
+        b = prefactor * np.append(np.zeros(m, dtype=np.complex128), gammas)
         a_star = prefactor * np.array([1, -np.conj(gammas[0])*gammas[1]]) if n == 2 else np.array([prefactor])
         return a_star, b
     
@@ -220,12 +220,12 @@ def forward_nonlinear_FFT(gammas: np.ndarray, m=0, debug=False) -> tuple[np.ndar
     b1 = fftconvolve(np.conj(a_star_left[::-1]), b_right)
     b1 = b1[len(a_star_left)-1:]
     b2 = fftconvolve(a_star_right, b_left)
-    b2 = np.append(b2, np.zeros(len(b1)-len(b2)))
+    b2 = np.append(b2, np.zeros(len(b1)-len(b2), dtype=np.complex128))
     a_star1 = -fftconvolve(np.conj(b_left[::-1]), b_right)
     a_star1 = a_star1[len(b_left)-1:]
     a_star2 = fftconvolve(a_star_left, a_star_right)
-    a_star2 = np.append(a_star2, np.zeros(len(a_star1)-len(a_star2)))
+    a_star2 = np.append(a_star2, np.zeros(len(a_star1)-len(a_star2), dtype=np.complex128))
     b = b1 + b2
     a_star = a_star1 + a_star2
 
-    return a_star, np.append(np.zeros(m), b)
+    return a_star, np.append(np.zeros(m, dtype=np.complex128), b)
