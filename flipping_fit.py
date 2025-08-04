@@ -12,8 +12,37 @@ from numpy.polynomial import chebyshev as cheb
 from scipy.signal import fftconvolve
 
 
-# correct nonlinear FFT
-def inverse_nonlinear_FFT(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def high_precision_convolution(a, b):
+    """
+    High precision convolution using mpmath.
+    
+    Parameters
+    ----------
+    a, b : arrays of mpmath complex numbers
+    
+    Returns
+    -------
+    array of mpmath complex numbers
+    """
+    from mpmath import mpc
+    
+    # Convert to lists for easier manipulation
+    a_list = list(a)
+    b_list = list(b)
+    
+    # Result length
+    result_len = len(a_list) + len(b_list) - 1
+    result = [mpc(0) for _ in range(result_len)]
+    
+    # Direct convolution
+    for i in range(len(a_list)):
+        for j in range(len(b_list)):
+            result[i + j] += a_list[i] * b_list[j]
+    
+    return np.array(result)
+
+
+def high_precision_inverse_nonlinear_FFT(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Computes the inverse nonlinear FFT of a and b.
 
@@ -34,94 +63,48 @@ def inverse_nonlinear_FFT(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.
     >>> inverse_nonlinear_FFT(np.array([0.1, -0.5, -0.6]), np.array([0.2, -0.5, 0.3]))[0]
     array([2., 1., 3.])
     """
+    from mpmath import mp, mpf, mpc, sqrt, conj
+
+    # Set the desired precision (e.g., 50 decimal places)
+    mp.dps = 100
+
     n = len(a)
 
     # Step 1: base case
     if n == 1:
-        gammas = np.array([b[0]/a[0]])
-        eta_1 = np.array([1 / np.sqrt(1 + np.abs(gammas[0])**2)])
+        # Convert numpy complex to mpmath complex properly
+        b_complex = mpc(float(b[0].real), float(b[0].imag))
+        a_complex = mpc(float(a[0].real), float(a[0].imag))
+        gammas = np.array([b_complex/a_complex])
+        eta_1 = np.array([1 / sqrt(1 + abs(gammas[0])**2)])
         xi_1 = gammas * eta_1
         return gammas, xi_1, eta_1
     
     # Step 2: first recursive call
-    m = int(np.ceil(n/2))
-    gammas = np.zeros(n, dtype=np.complex128)
-    gammas[:m], xi_m, eta_m = inverse_nonlinear_FFT(a[:m], b[:m])
+    m = int(mp.ceil(n/2))
+    gammas = np.zeros(n, dtype=object)
+    gammas[:m], xi_m, eta_m = high_precision_inverse_nonlinear_FFT(a[:m], b[:m])
 
     # Step 3: compute coefficients of am and bm
-    eta_m_sharp = np.append(0, eta_m[::-1])
-    xi_m_sharp = np.append(0, xi_m[::-1])
-    am = (fftconvolve(eta_m_sharp, a) + fftconvolve(xi_m_sharp, b))[m:]
-    bm = (fftconvolve(eta_m, b) - fftconvolve(xi_m, a))[m:]
+    # Convert numpy arrays to mpmath arrays for high precision operations
+    eta_m_sharp = np.append(mpc(0), eta_m[::-1])
+    xi_m_sharp = np.append(mpc(0), xi_m[::-1])
+    
+    # Convert a and b to mpmath arrays for high precision convolution
+    a_mp = np.array([mpc(float(x.real), float(x.imag)) for x in a])
+    b_mp = np.array([mpc(float(x.real), float(x.imag)) for x in b])
+    
+    # Use high precision convolution
+    am = (high_precision_convolution(eta_m_sharp, a_mp) + high_precision_convolution(xi_m_sharp, b_mp))[m:]
+    bm = (high_precision_convolution(eta_m, b_mp) - high_precision_convolution(xi_m, a_mp))[m:]
 
     # Step 4: second recursive call
-    gammas[m:], xi_mn, eta_mn = inverse_nonlinear_FFT(am[:n-m], bm[:n-m])
+    gammas[m:], xi_mn, eta_mn = high_precision_inverse_nonlinear_FFT(am[:n-m], bm[:n-m])
 
     # Step 5: final calculation and output
-    xi_n = fftconvolve(eta_m_sharp, xi_mn) + np.append(fftconvolve(xi_m, eta_mn), 0)
-    eta_n = np.append(fftconvolve(eta_m, eta_mn), 0) - fftconvolve(xi_m_sharp, xi_mn)
+    xi_n = high_precision_convolution(eta_m_sharp, xi_mn) + np.append(high_precision_convolution(xi_m, eta_mn), mpc(0))
+    eta_n = np.append(high_precision_convolution(eta_m, eta_mn), mpc(0)) - high_precision_convolution(xi_m_sharp, xi_mn)
     return gammas, xi_n, eta_n
-
-
-def forward_nonlinear_FFT(gammas: np.ndarray, m=0, debug=False) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Computes the forward nonlinear FFT, producing the polynomials a^* and b
-    from the rotation parameters gammas.
-
-    Parameters
-    ----------
-    gammas : np.ndarray
-        Array of complex rotation parameters gamma_k of length n.
-    m : int, optional
-        starting index of gammas to use in the recursion.
-
-    Returns
-    -------
-    tuple of np.ndarray
-        A tuple (a_star, b) of length n+1 and n respectively, where a_star
-        is the conjugate polynomial coefficients of a^*(z), and b is b(z).
-    """
-    n = len(gammas)
-
-    # base case
-    if n <= 2:
-        prefactor = 1 / np.sqrt(1 + np.abs(gammas[0])**2)
-        if n == 2:
-            prefactor /= np.sqrt(1 + np.abs(gammas[1])**2)
-        if debug:
-            prefactor = 1
-        b = prefactor * np.append(np.zeros(m, dtype=np.complex128), gammas)
-        a_star = prefactor * np.array([1, -np.conj(gammas[0])*gammas[1]]) if n == 2 else np.array([prefactor])
-        return a_star, b
-    
-    # recursive step
-    m_new = int(np.ceil(n/2))
-    if debug:
-        print("m={}, n={}".format(m, n))
-    a_star_left, b_left = forward_nonlinear_FFT(gammas[:m_new], debug=debug)
-    a_star_right, b_right = forward_nonlinear_FFT(gammas[m_new:], m_new, debug=debug)
-    
-    # compute the convolution of the left and right parts
-    if debug:
-        print("a_star_left: ", a_star_left)
-        print("b_left: ", b_left)
-        print("a_star_right: ", a_star_right)
-        print("b_right: ", b_right)
-        print("b1: ", fftconvolve(np.conj(a_star_left[::-1]), b_right))
-        print("b2: ", fftconvolve(a_star_right, b_left))
-    b1 = fftconvolve(np.conj(a_star_left[::-1]), b_right)
-    b1 = b1[len(a_star_left)-1:]
-    b2 = fftconvolve(a_star_right, b_left)
-    b2 = np.append(b2, np.zeros(len(b1)-len(b2), dtype=np.complex128))
-    a_star1 = -fftconvolve(np.conj(b_left[::-1]), b_right)
-    a_star1 = a_star1[len(b_left)-1:]
-    a_star2 = fftconvolve(a_star_left, a_star_right)
-    a_star2 = np.append(a_star2, np.zeros(len(a_star1)-len(a_star2), dtype=np.complex128))
-    b = b1 + b2
-    a_star = a_star1 + a_star2
-
-    return a_star, np.append(np.zeros(m, dtype=np.complex128), b)
-
 
 
 def f(x):
@@ -144,14 +127,14 @@ factor = 1
 coeffs = factor * coeffs
 
 # format and show
-plt.grid()
-plt.plot(x, y, label="exact")
-plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree}")
-plt.xlim(-1, 1)
-plt.xlabel(r"$x$")
-plt.ylabel(r"XRect$(x)$")
-plt.legend()
-plt.show()
+# plt.grid()
+# plt.plot(x, y, label="exact")
+# plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree}")
+# plt.xlim(-1, 1)
+# plt.xlabel(r"$x$")
+# plt.ylabel(r"XRect$(x)$")
+# plt.legend()
+# plt.show()
 
 
 bcoeffs = nlfa.b_from_cheb(coeffs[1::2], 1)
@@ -226,7 +209,9 @@ conv_p_negative = FFTConvolve("full").forward(poly, torch.flip(poly, dims=[0])) 
 conv_p_negative[poly.shape[0] - 1] = 1 - torch.norm(poly) ** 2
 
 # Set up optimizer
+torch.manual_seed(55)
 initial = torch.randn(poly.shape[0], device=device, requires_grad=True)
+# initial = torch.ones(poly.shape[0], device=device, requires_grad=True)
 initial = (initial / torch.norm(initial)).clone().detach().requires_grad_(True)
 optimizer = torch.optim.LBFGS([initial], max_iter=1000, line_search_fn="strong_wolfe", tolerance_grad=1e-10)
 
@@ -246,26 +231,30 @@ print("-----------------------------------------------------")
 acoeffs = initial.detach().numpy()
 # print(f"acoeffs: {acoeffs}")
 print(f"bcoeffs: {bcoeffs[:5]}")
-gammas, _, _ = inverse_nonlinear_FFT(acoeffs, bcoeffs)
+print("Running high precision inverse nonlinear FFT...")
+gammas, _, _ = high_precision_inverse_nonlinear_FFT(acoeffs, bcoeffs)
+# Convert mpmath complex numbers to numpy complex numbers
+gammas = np.array([complex(float(g.real), float(g.imag)) for g in gammas])
 # print(f"gammas: {gammas}")
-new_a, new_b = forward_nonlinear_FFT(gammas)
+new_a, new_b = nlfa.forward_nonlinear_FFT(gammas)
 # print(f"new_a: {new_a}")
 print(f"new_b: {new_b[:5]}")
 
 
-coefs_constraint = fftconvolve(acoeffs, np.flip(np.conj(acoeffs)), mode='full') + fftconvolve(bcoeffs, np.flip(np.conj(bcoeffs)), mode='full')
-coefs_constraint_new = fftconvolve(new_a, np.flip(np.conj(new_a)), mode='full') + fftconvolve(new_b, np.flip(np.conj(new_b)), mode='full')
+# Verify constraint becomes satisfied
+# coefs_constraint = fftconvolve(acoeffs, np.flip(np.conj(acoeffs)), mode='full') + fftconvolve(bcoeffs, np.flip(np.conj(bcoeffs)), mode='full')
+# coefs_constraint_new = fftconvolve(new_a, np.flip(np.conj(new_a)), mode='full') + fftconvolve(new_b, np.flip(np.conj(new_b)), mode='full')
 
-plt.plot(np.real(coefs_constraint))
-plt.yscale("log")
-plt.show()
-plt.plot(np.real(coefs_constraint_new))
-plt.yscale("log")
-plt.show()
+# plt.plot(np.real(coefs_constraint))
+# plt.yscale("log")
+# plt.show()
+# plt.plot(np.real(coefs_constraint_new))
+# plt.yscale("log")
+# plt.show()
 
 
 new_coeffs = np.zeros(len(coeffs))
-new_coeffs[1::2] = new_b[int(len(new_b)/2-1)::-1] + new_b[int(len(new_b)/2)::]
+new_coeffs[1::2] = np.real(new_b[int(len(new_b)/2-1)::-1] + new_b[int(len(new_b)/2)::])
 
 plt.grid()
 plt.plot(x, y, label="exact")
