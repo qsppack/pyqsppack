@@ -209,7 +209,7 @@ conv_p_negative = FFTConvolve("full").forward(poly, torch.flip(poly, dims=[0])) 
 conv_p_negative[poly.shape[0] - 1] = 1 - torch.norm(poly) ** 2
 
 # Set up optimizer
-torch.manual_seed(55)
+torch.manual_seed(42)
 initial = torch.randn(poly.shape[0], device=device, requires_grad=True)
 # initial = torch.ones(poly.shape[0], device=device, requires_grad=True)
 initial = (initial / torch.norm(initial)).clone().detach().requires_grad_(True)
@@ -254,12 +254,16 @@ print(f"new_b: {new_b[:5]}")
 
 
 new_coeffs = np.zeros(len(coeffs))
+new_a_coeffs = np.zeros(len(coeffs))
 new_coeffs[1::2] = np.real(new_b[int(len(new_b)/2-1)::-1] + new_b[int(len(new_b)/2)::])
+new_a_coeffs[1::2] = np.real(new_a[int(len(new_a)/2-1)::-1] + new_a[int(len(new_a)/2)::])
 
 plt.grid()
 plt.plot(x, y, label="exact")
-plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree} original")
-plt.plot(x, cheb.chebval(x, new_coeffs), label=f"d={degree} perturbed")
+plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree} original P")
+plt.plot(x, cheb.chebval(x, acoeffs), label=f"d={degree} original Q")
+plt.plot(x, cheb.chebval(x, new_coeffs), label=f"d={degree} perturbed P")
+plt.plot(x, cheb.chebval(x, new_a_coeffs), label=f"d={degree} perturbed Q")
 plt.xlim(-1, 1)
 plt.xlabel(r"$x$")
 plt.ylabel(r"XRect$(x)$")
