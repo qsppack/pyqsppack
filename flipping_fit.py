@@ -171,18 +171,18 @@ N = len(bcoeffs)
 # Generate a random polynomial of size N on the specified device
 poly = torch.tensor(bcoeffs, dtype=torch.float32, device=device)
 
-# Define the granularity for padding
-granularity = 2 ** 25
+# # Define the granularity for padding
+# granularity = 2 ** 25
 
-# Pad the polynomial to match the granularity
-P = pad(poly, (0, granularity - poly.shape[0]))
+# # Pad the polynomial to match the granularity
+# P = pad(poly, (0, granularity - poly.shape[0]))
 
-# Compute the FFT of the padded polynomial
-ft = fft(P)
+# # Compute the FFT of the padded polynomial
+# ft = fft(P)
 
-# Normalize the polynomial using the maximum norm of its FFT
-P_norms = ft.abs()
-poly /= torch.max(P_norms)
+# # Normalize the polynomial using the maximum norm of its FFT
+# P_norms = ft.abs()
+# poly /= torch.max(P_norms)
 
 # Compute the negative convolution of the polynomial with its flipped version
 conv_p_negative = FFTConvolve("full").forward(poly, torch.flip(poly, dims=[0])) * -1
@@ -212,6 +212,7 @@ def closure():
 torch.manual_seed(55)
 initial = torch.randn(poly.shape[0], device=device, requires_grad=True)
 # initial = torch.ones(poly.shape[0], device=device, requires_grad=True)
+# initial = torch.zeros(poly.shape[0], device=device, requires_grad=True)
 initial = (initial / torch.norm(initial)).clone().detach().requires_grad_(True)
 optimizer = torch.optim.LBFGS([initial], max_iter=1000, line_search_fn="strong_wolfe", tolerance_grad=1e-10)
 
