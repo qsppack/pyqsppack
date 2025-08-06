@@ -123,18 +123,18 @@ degree = 61
 coeffs = cheb.chebinterpolate(f_vec, degree)
 coeffs[::2] = np.zeros(len(coeffs)//2) # enforce odd constraint
 
-factor = 1
+factor = 0.95
 coeffs = factor * coeffs
 
 # format and show
-# plt.grid()
-# plt.plot(x, y, label="exact")
-# plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree}")
-# plt.xlim(-1, 1)
-# plt.xlabel(r"$x$")
-# plt.ylabel(r"XRect$(x)$")
-# plt.legend()
-# plt.show()
+plt.grid()
+plt.plot(x, y, label="exact")
+plt.plot(x, cheb.chebval(x, coeffs), label=f"d={degree}")
+plt.xlim(-1, 1)
+plt.xlabel(r"$x$")
+plt.ylabel(r"XRect$(x)$")
+plt.legend()
+plt.show()
 
 
 bcoeffs = nlfa.b_from_cheb(coeffs[1::2], 1)
@@ -242,15 +242,15 @@ print(f"new_b: {new_b[:5]}")
 
 
 # Verify constraint becomes satisfied
-# coefs_constraint = fftconvolve(acoeffs, np.flip(np.conj(acoeffs)), mode='full') + fftconvolve(bcoeffs, np.flip(np.conj(bcoeffs)), mode='full')
-# coefs_constraint_new = fftconvolve(new_a, np.flip(np.conj(new_a)), mode='full') + fftconvolve(new_b, np.flip(np.conj(new_b)), mode='full')
+coefs_constraint = fftconvolve(acoeffs, np.flip(np.conj(acoeffs)), mode='full') + fftconvolve(bcoeffs, np.flip(np.conj(bcoeffs)), mode='full')
+coefs_constraint_new = fftconvolve(new_a, np.flip(np.conj(new_a)), mode='full') + fftconvolve(new_b, np.flip(np.conj(new_b)), mode='full')
 
-# plt.plot(np.real(coefs_constraint))
-# plt.yscale("log")
-# plt.show()
-# plt.plot(np.real(coefs_constraint_new))
-# plt.yscale("log")
-# plt.show()
+plt.plot(np.real(coefs_constraint))
+plt.yscale("log")
+plt.show()
+plt.plot(np.real(coefs_constraint_new))
+plt.yscale("log")
+plt.show()
 
 
 new_coeffs = np.zeros(len(coeffs))
