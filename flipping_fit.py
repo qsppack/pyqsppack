@@ -165,24 +165,6 @@ def objective_torch(x, P):
     return 1000*loss
 
 
-def closure():
-    """
-    Closure function for the optimizer.
-
-    This function zeroes the gradients, computes the loss using the objective_torch
-    function, and performs backpropagation to compute the gradients.
-
-    Returns
-    -------
-    torch.Tensor
-        The computed loss value.
-    """
-    optimizer.zero_grad()
-    loss = objective_torch(initial, conv_p_negative)
-    loss.backward()
-    return loss
-
-
 # Set the size of the polynomial
 N = len(bcoeffs)
 
@@ -208,6 +190,24 @@ conv_p_negative = FFTConvolve("full").forward(poly, torch.flip(poly, dims=[0])) 
 # Adjust the last element to ensure the norm condition
 conv_p_negative[poly.shape[0] - 1] = 1 - torch.norm(poly) ** 2
 
+
+def closure():
+    """
+    Closure function for the optimizer.
+
+    This function zeroes the gradients, computes the loss using the objective_torch
+    function, and performs backpropagation to compute the gradients.
+
+    Returns
+    -------
+    torch.Tensor
+        The computed loss value.
+    """
+    optimizer.zero_grad()
+    loss = objective_torch(initial, conv_p_negative)
+    loss.backward()
+    return loss
+
 # Set up optimizer
 torch.manual_seed(55)
 initial = torch.randn(poly.shape[0], device=device, requires_grad=True)
@@ -228,7 +228,9 @@ print(f"# Iterations: {optimizer.state[optimizer._params[0]]['n_iter']}")
 print("-----------------------------------------------------")
 
 
-acoeffs = initial.detach().numpy()
+acoeffs = optimizer._params[0].detach().cpu().numpy()
+if acoeffs[0] < 0:
+    acoeffs = -acoeffs
 # print(f"acoeffs: {acoeffs}")
 print(f"bcoeffs: {bcoeffs[:5]}")
 print("Running high precision inverse nonlinear FFT...")
