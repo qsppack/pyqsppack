@@ -115,9 +115,6 @@ obj_values = np.zeros_like(b0_grid)
 b_grid = np.stack((b0_grid, b1_grid), axis=-1)
 obj_values = np.apply_along_axis(lambda b: obj(a, b), 2, b_grid)
 
-# Plot a color plot of the result
-plt.figure(figsize=(8, 6))
-
 # To avoid issues with log scale and zero values, add a small constant
 print(np.min(obj_values))
 epsilon = 1e-10
