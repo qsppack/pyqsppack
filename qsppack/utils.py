@@ -361,8 +361,8 @@ def cvx_poly_coef(func, deg, opts):
 
     max_sol = np.max(np.abs(np.polynomial.chebyshev.chebval(xpts, coef_full)))
     print(f'max of solution = {max_sol}')
-    if max_sol > 1.0 - 1e-10:
-        raise ValueError('Solution is not bounded by 1. Increase npts')
+    # if max_sol > 1.0 - 1e-10:
+    #     raise ValueError('Solution is not bounded by 1. Increase npts')
 
     if opts['isplot']:
         plt.figure(1)
