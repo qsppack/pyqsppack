@@ -90,9 +90,9 @@ def weiss(b, N):
     G_star = np.array([np.dot(R_hat, np.power(zj, np.arange(len(R_hat)))) for zj in z])
     a_star = ifft(np.exp(G_star))
     # print("using current Weiss version")
-    # return np.real(np.append(a_star[0],a_star[-len(b)+1:][::-1])) # This is for a test, the bottom line is the correct one
-    print("using OG Weiss")
-    return np.real_if_close(np.append(a_star[0],a_star[-len(b)+1:][::-1]))
+    return np.real(np.append(a_star[0],a_star[-len(b)+1:][::-1])) # This is for a test, the bottom line is the correct one
+    # print("using OG Weiss")
+    # return np.real_if_close(np.append(a_star[0],a_star[-len(b)+1:][::-1]))
 
 
 def inverse_nonlinear_FFT(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
