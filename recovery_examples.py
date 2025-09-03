@@ -8,7 +8,7 @@ from time import time
 
 
 # initialize array of degrees
-degs = 2*np.unique(np.int32(2.**np.linspace(2., 6.2, 30)))+1
+degs = 2*np.unique(np.int32(2.**np.linspace(2., 7.5, 40)))+1
 print(f'degs = {degs}')
 rec_errs = np.zeros(len(degs))
 std_errs = np.zeros(len(degs))
@@ -39,7 +39,7 @@ for i, deg in enumerate(degs):
 
 
     opts.update({
-        'N': 2**9,
+        'N': 2**10,
         'method': 'NLFT',
         'targetPre': False,
         'typePhi': 'reduced'})
@@ -72,7 +72,7 @@ for i, deg in enumerate(degs):
 
 
     opts.update({
-        'N': 2**9,
+        'N': 2**10,
         'method': 'NLFT',
         'targetPre': False,
         'typePhi': 'reduced'})
@@ -88,7 +88,7 @@ for i, deg in enumerate(degs):
     print(f'The standard error is {std_errs[i]}\n')
 
 
-np.savez('recovered_errs.npz', degs=degs, rec_errs=rec_errs, std_errs=std_errs)
+np.savez('recovered_errs_times4.npz', degs=degs, rec_errs=rec_errs, std_errs=std_errs, times_rec=times_rec, times_std=times_std)
 
 plt.loglog(degs, rec_errs, '--', label='Recovered', color='red')
 plt.loglog(degs, std_errs, '--', label='Oversampled', color='blue')
