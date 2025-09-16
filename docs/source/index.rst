@@ -7,7 +7,29 @@ Welcome to qsppack's documentation!
 ===================================
 
 qsppack is a Python package for Quantum Signal Processing optimization and analysis.
+This package is based on a MATLAB package by the same name. The MATLAB code can be found at https://github.com/qsppack/QSPPACK, with an earlier version of the tutorials and examples at https://qsppack.gitbook.io/qsppack/ (not actively maintained).
 
+
+Installation
+------------
+
+You can install qsppack using pip::
+
+    pip install qsppack
+
+Or install from source::
+
+    git clone https://github.com/qsppack/pyqsppack.git
+    cd pyqsppack
+    pip install -e .
+
+For development and testing, install with test dependencies::
+
+    pip install -e ".[test]"
+
+
+Contents
+========
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -19,27 +41,5 @@ qsppack is a Python package for Quantum Signal Processing optimization and analy
    nlfa
    examples
 
-Installation
-------------
-
-You can install qsppack using pip::
-
-    pip install qsppack
-
-Or install from source::
-
-    git clone https://github.com/beevus77/qsppack.git
-    cd qsppack
-    pip install -e .
-
-For development and testing, install with test dependencies::
-
-    pip install -e ".[test]"
-
-Indices and tables
-==================
-
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
