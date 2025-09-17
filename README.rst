@@ -6,7 +6,7 @@ A Python package for Quantum Signal Processing optimization and analysis.
 Installation
 ------------
 
-You can install the package using pip:
+You can install qsppack using pip:
 
 .. code-block:: bash
 
@@ -16,8 +16,8 @@ Or install from source:
 
 .. code-block:: bash
 
-    git clone https://github.com/beevus77/qsp.git
-    cd qsp
+    git clone https://github.com/qsppack/pyqsppack.git
+    cd pyqsppack
     pip install -e .
 
 Documentation
